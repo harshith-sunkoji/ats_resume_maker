@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ResumeData, DEFAULT_RESUME_DATA } from "@/types/resume";
 import { ResumePreview } from "@/components/ResumePreview";
 import { ResumeEditor } from "@/components/ResumeEditor";
 import { PdfUploader } from "@/components/PdfUploader";
+import { JdAnalyzer } from "@/components/JdAnalyzer";
 import {
   Download,
   Eye,
@@ -15,87 +17,43 @@ import {
   RotateCcw,
   Sparkles,
   FileCheck,
-  Loader2,
-  Printer,
+  ExternalLink,
 } from "lucide-react";
 
 export default function Home() {
   const [resumeData, setResumeData] = useState<ResumeData>(DEFAULT_RESUME_DATA);
   const [viewMode, setViewMode] = useState<"split" | "editor" | "preview">("split");
   const [scale, setScale] = useState<number>(0.85);
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const router = useRouter();
 
-  const handleDownloadPdf = async () => {
-    setIsGeneratingPdf(true);
-    let container: HTMLDivElement | null = null;
+  // Sync resumeData with localStorage
+  useEffect(() => {
     try {
-      const element = document.getElementById("ats-resume-document");
-      if (!element) {
-        window.print();
-        return;
+      const saved = localStorage.getItem("ats_resume_data");
+      if (saved) {
+        setResumeData(JSON.parse(saved));
       }
+    } catch (e) {
+      console.error("Failed to load resumeData from localStorage", e);
+    }
+  }, []);
 
-      // Clone element to remove any UI zoom scaling/transforms for 100% exact 1-page A4 output
-      const clone = element.cloneNode(true) as HTMLElement;
-      clone.style.transform = "none";
-      clone.style.margin = "0";
-      clone.style.boxShadow = "none";
-      clone.style.border = "none";
-      clone.style.width = "210mm";
-      clone.style.minHeight = "297mm";
-      clone.style.background = "#ffffff";
-      clone.style.color = "#000000";
-
-      // Append to hidden off-screen container for crisp canvas rendering
-      container = document.createElement("div");
-      container.style.position = "fixed";
-      container.style.left = "-9999px";
-      container.style.top = "-9999px";
-      container.style.width = "210mm";
-      container.style.pointerEvents = "none";
-      container.appendChild(clone);
-      document.body.appendChild(container);
-
-      const html2pdf = (await import("html2pdf.js")).default;
-      const fileName = `${(resumeData.personalInfo.fullName || "Resume").trim().replace(/\s+/g, "_")}_ATS_Resume.pdf`;
-
-      const opt = {
-        margin: 0,
-        filename: fileName,
-        image: { type: "jpeg" as const, quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: "#ffffff",
-          onclone: (clonedDoc: Document) => {
-            // Replace any Tailwind v4 lab() / oklch() color functions in cloned <style> tags to avoid html2canvas parse crash
-            clonedDoc.querySelectorAll("style").forEach((styleEl) => {
-              if (styleEl.textContent) {
-                styleEl.textContent = styleEl.textContent
-                  .replace(/lab\([^)]+\)/g, "#000000")
-                  .replace(/oklch\([^)]+\)/g, "#000000");
-              }
-            });
-          },
-        },
-        jsPDF: { unit: "mm" as const, format: "a4", orientation: "portrait" as const },
-      };
-
-      await html2pdf().set(opt).from(clone).save();
-    } catch (err) {
-      console.warn("Direct PDF download fallback to window.print():", err);
-      window.print();
-    } finally {
-      if (container && document.body.contains(container)) {
-        document.body.removeChild(container);
-      }
-      setIsGeneratingPdf(false);
+  const handleUpdateResumeData = (newData: ResumeData) => {
+    setResumeData(newData);
+    try {
+      localStorage.setItem("ats_resume_data", JSON.stringify(newData));
+    } catch (e) {
+      console.error("Failed to save resumeData to localStorage", e);
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleGoToPreviewPage = () => {
+    try {
+      localStorage.setItem("ats_resume_data", JSON.stringify(resumeData));
+    } catch (e) {
+      console.error("Failed to save resumeData to localStorage", e);
+    }
+    router.push("/preview");
   };
 
   const handleZoomIn = () => setScale((prev) => Math.min(1.2, prev + 0.05));
@@ -106,7 +64,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans selection:bg-blue-500 selection:text-white">
       {/* TOP BAR / CONTROL HEADER */}
       <header className="app-header sticky top-0 z-30 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 no-print">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+        <div className="w-full max-w-[1920px] mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Logo & Info */}
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl text-white shadow-md">
@@ -122,7 +80,7 @@ export default function Home() {
                 </span>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">
-                Upload PDF • AI Extraction • Live ATS Template Preview • PDF Export
+                Upload PDF • AI Extraction • Live ATS Template Preview • Full Preview Page & Export
               </p>
             </div>
           </div>
@@ -201,33 +159,15 @@ export default function Home() {
               </div>
             )}
 
-            {/* Print / Export Buttons */}
+            {/* Export Action Button */}
             <div className="flex items-center gap-2">
               <button
-                onClick={handlePrint}
-                className="flex items-center gap-1.5 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-semibold text-xs px-3 py-2 rounded-xl transition-all"
-                title="Open browser print dialog"
+                onClick={handleGoToPreviewPage}
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs px-4 py-2 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
               >
-                <Printer className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Print</span>
-              </button>
-
-              <button
-                onClick={handleDownloadPdf}
-                disabled={isGeneratingPdf}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-75 text-white font-semibold text-xs px-4 py-2 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
-              >
-                {isGeneratingPdf ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Generating PDF...</span>
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-4 h-4" />
-                    <span>Download ATS PDF</span>
-                  </>
-                )}
+                <Eye className="w-4 h-4" />
+                <span>Preview & Download ATS Resume</span>
+                <ExternalLink className="w-3.5 h-3.5 opacity-80" />
               </button>
             </div>
           </div>
@@ -235,14 +175,18 @@ export default function Home() {
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
-        {/* PDF UPLOADER DRAWER */}
-        <div className="no-print">
+      <main className="flex-1 w-full max-w-[1920px] mx-auto p-4 md:p-6 space-y-6">
+        {/* PDF UPLOADER & JD ANALYZER GRID */}
+        <div className="no-print grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <PdfUploader
             onParsed={(extracted) => {
-              setResumeData(extracted);
+              handleUpdateResumeData(extracted);
             }}
-            onResetSample={() => setResumeData(DEFAULT_RESUME_DATA)}
+            onResetSample={() => handleUpdateResumeData(DEFAULT_RESUME_DATA)}
+          />
+          <JdAnalyzer
+            resumeData={resumeData}
+            onUpdateResumeData={(updated) => handleUpdateResumeData(updated)}
           />
         </div>
 
@@ -265,7 +209,7 @@ export default function Home() {
             >
               <ResumeEditor
                 data={resumeData}
-                onChange={(newData) => setResumeData(newData)}
+                onChange={(newData) => handleUpdateResumeData(newData)}
               />
             </div>
           )}
