@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { ResumeData, Experience, Project, Achievement, Education, SkillCategory } from "@/types/resume";
-import { Plus, Trash2, User, Briefcase, FolderGit2, Trophy, GraduationCap, Wrench, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { ResumeData, Experience, Project, Achievement, Education, SkillCategory, Certification } from "@/types/resume";
+import { Plus, Trash2, User, Briefcase, FolderGit2, Trophy, GraduationCap, Wrench, Award, FileText } from "lucide-react";
 
 interface ResumeEditorProps {
   data: ResumeData;
@@ -10,7 +10,9 @@ interface ResumeEditorProps {
 }
 
 export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) => {
-  const [activeTab, setActiveTab] = useState<"personal" | "experience" | "projects" | "achievements" | "education" | "skills">("personal");
+  const [activeTab, setActiveTab] = useState<
+    "personal" | "education" | "skills" | "experience" | "projects" | "certifications" | "achievements"
+  >("personal");
 
   // Helper updates
   const updatePersonalInfo = (field: string, value: string) => {
@@ -20,6 +22,13 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
         ...data.personalInfo,
         [field]: value,
       },
+    });
+  };
+
+  const updateSummary = (value: string) => {
+    onChange({
+      ...data,
+      summary: value,
     });
   };
 
@@ -106,6 +115,28 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
     onChange({ ...data, projects: updated });
   };
 
+  // Certifications handlers
+  const updateCertification = (index: number, field: keyof Certification, value: any) => {
+    const updated = [...(data.certifications || [])];
+    updated[index] = { ...updated[index], [field]: value };
+    onChange({ ...data, certifications: updated });
+  };
+
+  const addCertification = () => {
+    const newCert: Certification = {
+      id: `cert-${Date.now()}`,
+      name: "AWS Certified Solutions Architect",
+      issuer: "Amazon Web Services",
+      date: "2023",
+    };
+    onChange({ ...data, certifications: [...(data.certifications || []), newCert] });
+  };
+
+  const removeCertification = (index: number) => {
+    const updated = (data.certifications || []).filter((_, i) => i !== index);
+    onChange({ ...data, certifications: updated });
+  };
+
   // Achievements handlers
   const updateAchievement = (index: number, field: keyof Achievement, value: any) => {
     const updated = [...(data.achievements || [])];
@@ -116,8 +147,8 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
   const addAchievement = () => {
     const newAch: Achievement = {
       id: `ach-${Date.now()}`,
-      title: "Title of Award or Certification",
-      description: "Details regarding the achievement, competition rank, or credential.",
+      title: "Title of Award or Achievement",
+      description: "Details regarding the achievement or competition rank.",
       date: "2024",
     };
     onChange({ ...data, achievements: [...(data.achievements || []), newAch] });
@@ -179,80 +210,92 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
       <div className="flex border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 overflow-x-auto">
         <button
           onClick={() => setActiveTab("personal")}
-          className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
+          className={`flex items-center gap-1.5 px-3.5 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
             activeTab === "personal"
               ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
               : "border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
           }`}
         >
           <User className="w-3.5 h-3.5" />
-          Personal Info
-        </button>
-
-        <button
-          onClick={() => setActiveTab("experience")}
-          className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
-            activeTab === "experience"
-              ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
-              : "border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-          }`}
-        >
-          <Briefcase className="w-3.5 h-3.5" />
-          Experience ({(data.experiences || []).length})
-        </button>
-
-        <button
-          onClick={() => setActiveTab("projects")}
-          className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
-            activeTab === "projects"
-              ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
-              : "border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-          }`}
-        >
-          <FolderGit2 className="w-3.5 h-3.5" />
-          Projects ({(data.projects || []).length})
-        </button>
-
-        <button
-          onClick={() => setActiveTab("achievements")}
-          className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
-            activeTab === "achievements"
-              ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
-              : "border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-          }`}
-        >
-          <Trophy className="w-3.5 h-3.5" />
-          Achievements ({(data.achievements || []).length})
+          1. Header & Summary
         </button>
 
         <button
           onClick={() => setActiveTab("education")}
-          className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
+          className={`flex items-center gap-1.5 px-3.5 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
             activeTab === "education"
               ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
               : "border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
           }`}
         >
           <GraduationCap className="w-3.5 h-3.5" />
-          Education ({(data.education || []).length})
+          2. Education ({(data.education || []).length})
         </button>
 
         <button
           onClick={() => setActiveTab("skills")}
-          className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
+          className={`flex items-center gap-1.5 px-3.5 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
             activeTab === "skills"
               ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
               : "border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
           }`}
         >
           <Wrench className="w-3.5 h-3.5" />
-          Skills ({(data.skillCategories || []).length})
+          3. Skills ({(data.skillCategories || []).length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("experience")}
+          className={`flex items-center gap-1.5 px-3.5 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
+            activeTab === "experience"
+              ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
+              : "border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+          }`}
+        >
+          <Briefcase className="w-3.5 h-3.5" />
+          4. Experience ({(data.experiences || []).length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("projects")}
+          className={`flex items-center gap-1.5 px-3.5 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
+            activeTab === "projects"
+              ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
+              : "border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+          }`}
+        >
+          <FolderGit2 className="w-3.5 h-3.5" />
+          5. Projects ({(data.projects || []).length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("certifications")}
+          className={`flex items-center gap-1.5 px-3.5 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
+            activeTab === "certifications"
+              ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
+              : "border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+          }`}
+        >
+          <Award className="w-3.5 h-3.5" />
+          6. Certifications ({(data.certifications || []).length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab("achievements")}
+          className={`flex items-center gap-1.5 px-3.5 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
+            activeTab === "achievements"
+              ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
+              : "border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+          }`}
+        >
+          <Trophy className="w-3.5 h-3.5" />
+          7. Achievements ({(data.achievements || []).length})
         </button>
       </div>
 
       {/* Tab Panels */}
       <div className="p-5 overflow-y-auto flex-1 space-y-4">
-        {/* PERSONAL INFO TAB */}
+        {/* 1. PERSONAL INFO & SUMMARY TAB */}
         {activeTab === "personal" && (
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
@@ -334,14 +377,196 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
                   value={data.personalInfo.location || ""}
                   onChange={(e) => updatePersonalInfo("location", e.target.value)}
                   className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  placeholder="Pune"
+                  placeholder="San Francisco, CA"
+                />
+              </div>
+            </div>
+
+            {/* Professional Summary Section */}
+            <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-blue-600" /> Professional Summary
+              </h3>
+              <div>
+                <label className="block text-xs text-zinc-500 dark:text-zinc-400 mb-1">
+                  A concise 2-3 sentence overview of your technical background, years of experience, and key accomplishments.
+                </label>
+                <textarea
+                  value={data.summary || ""}
+                  onChange={(e) => updateSummary(e.target.value)}
+                  rows={3}
+                  className="w-full p-3 text-xs bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none font-sans"
+                  placeholder="e.g. Results-driven Software Engineer with 4+ years of experience engineering scalable web applications..."
                 />
               </div>
             </div>
           </div>
         )}
 
-        {/* EXPERIENCE TAB */}
+        {/* 2. EDUCATION TAB */}
+        {activeTab === "education" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                <GraduationCap className="w-4 h-4 text-blue-600" /> Education
+              </h3>
+              <button
+                onClick={addEducation}
+                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-900 font-semibold cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Education
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {(data.education || []).map((edu, index) => (
+                <div
+                  key={edu.id || index}
+                  className="p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3 relative"
+                >
+                  <button
+                    onClick={() => removeEducation(index)}
+                    className="absolute top-4 right-4 text-zinc-400 hover:text-red-500 transition-colors p-1"
+                    title="Delete Education"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
+                        Institution / University
+                      </label>
+                      <input
+                        type="text"
+                        value={edu.institution}
+                        onChange={(e) => updateEducation(index, "institution", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
+                        Degree & Major
+                      </label>
+                      <input
+                        type="text"
+                        value={edu.degree}
+                        onChange={(e) => updateEducation(index, "degree", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
+                        Start Date
+                      </label>
+                      <input
+                        type="text"
+                        value={edu.startDate}
+                        onChange={(e) => updateEducation(index, "startDate", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="Aug. 2019"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
+                        End Date
+                      </label>
+                      <input
+                        type="text"
+                        value={edu.endDate}
+                        onChange={(e) => updateEducation(index, "endDate", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="May 2023"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
+                        GPA / Grade
+                      </label>
+                      <input
+                        type="text"
+                        value={edu.gpa || ""}
+                        onChange={(e) => updateEducation(index, "gpa", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="GPA: 3.8 / 4.0"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 3. SKILLS TAB */}
+        {activeTab === "skills" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                <Wrench className="w-4 h-4 text-blue-600" /> Technical Skills
+              </h3>
+              <button
+                onClick={addSkillCategory}
+                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-900 font-semibold cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Category
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {(data.skillCategories || []).map((sk, index) => (
+                <div
+                  key={sk.id || index}
+                  className="p-3.5 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3 relative group"
+                >
+                  <button
+                    onClick={() => removeSkillCategory(index)}
+                    className="absolute top-3 right-3 text-zinc-400 hover:text-red-500 transition-colors p-1"
+                    title="Delete Category"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div>
+                      <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
+                        Category Name
+                      </label>
+                      <input
+                        type="text"
+                        value={sk.category}
+                        onChange={(e) => updateSkillCategory(index, "category", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="e.g. Languages / Databases"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
+                        Skills (Comma Separated)
+                      </label>
+                      <input
+                        type="text"
+                        value={sk.skills}
+                        onChange={(e) => updateSkillCategory(index, "skills", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="e.g. Python, Java, TypeScript, SQL"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4. WORK EXPERIENCE TAB */}
         {activeTab === "experience" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -350,42 +575,26 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
               </h3>
               <button
                 onClick={addExperience}
-                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
+                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-900 font-semibold cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Experience
+                <Plus className="w-3.5 h-3.5" />
+                Add Experience
               </button>
             </div>
 
-            {(!data.experiences || data.experiences.length === 0) ? (
-              <div className="text-center py-8 px-4 border border-dashed border-zinc-300 dark:border-zinc-800 rounded-lg bg-zinc-50/50 dark:bg-zinc-950/50 space-y-3">
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Work experience is optional. If you are a fresher or student, you can leave this empty.
-                </p>
-                <button
-                  onClick={addExperience}
-                  className="inline-flex items-center gap-1.5 text-xs bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" /> Add Experience
-                </button>
-              </div>
-            ) : (
-              data.experiences.map((exp, idx) => (
+            <div className="space-y-4">
+              {(data.experiences || []).map((exp, index) => (
                 <div
-                  key={exp.id}
-                  className="p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-zinc-50/50 dark:bg-zinc-950/50 space-y-3"
+                  key={exp.id || index}
+                  className="p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3 relative"
                 >
-                  <div className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-2">
-                    <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                      Experience #{idx + 1}
-                    </span>
-                    <button
-                      onClick={() => removeExperience(idx)}
-                      className="text-red-500 hover:text-red-700 text-xs p-1"
-                      title="Remove experience"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => removeExperience(index)}
+                    className="absolute top-4 right-4 text-zinc-400 hover:text-red-500 transition-colors p-1"
+                    title="Delete Experience"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                     <div>
@@ -395,20 +604,20 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
                       <input
                         type="text"
                         value={exp.company}
-                        onChange={(e) => updateExperience(idx, "company", e.target.value)}
-                        className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                        onChange={(e) => updateExperience(index, "company", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     </div>
 
                     <div>
                       <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
-                        Role / Job Title
+                        Job Title / Role
                       </label>
                       <input
                         type="text"
                         value={exp.role}
-                        onChange={(e) => updateExperience(idx, "role", e.target.value)}
-                        className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                        onChange={(e) => updateExperience(index, "role", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     </div>
 
@@ -419,9 +628,9 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
                       <input
                         type="text"
                         value={exp.startDate}
-                        onChange={(e) => updateExperience(idx, "startDate", e.target.value)}
-                        className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
-                        placeholder="Sep. 2024"
+                        onChange={(e) => updateExperience(index, "startDate", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="Sep. 2023"
                       />
                     </div>
 
@@ -432,8 +641,8 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
                       <input
                         type="text"
                         value={exp.endDate}
-                        onChange={(e) => updateExperience(idx, "endDate", e.target.value)}
-                        className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                        onChange={(e) => updateExperience(index, "endDate", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         placeholder="Present"
                       />
                     </div>
@@ -445,40 +654,39 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
                       <input
                         type="text"
                         value={exp.location}
-                        onChange={(e) => updateExperience(idx, "location", e.target.value)}
-                        className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
-                        placeholder="Pune"
+                        onChange={(e) => updateExperience(index, "location", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="San Francisco, CA"
                       />
                     </div>
                   </div>
 
-                  {/* Bullets List */}
-                  <div className="space-y-2 pt-2">
-                    <div className="flex justify-between items-center">
-                      <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                        Bullet Points (Use **text** for bold keywords)
+                  {/* Bullet Points */}
+                  <div className="space-y-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                        Bullet Points & Accomplishments
                       </label>
                       <button
-                        onClick={() => addExperienceBullet(idx)}
-                        className="text-[11px] text-blue-600 font-medium hover:underline flex items-center gap-1"
+                        onClick={() => addExperienceBullet(index)}
+                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1 cursor-pointer"
                       >
                         <Plus className="w-3 h-3" /> Add Bullet
                       </button>
                     </div>
 
-                    {(exp.bullets || []).map((bullet, bIdx) => (
-                      <div key={bIdx} className="flex gap-2 items-start text-xs">
-                        <span className="mt-2 text-zinc-400 font-bold">•</span>
-                        <textarea
-                          rows={2}
+                    {exp.bullets.map((bullet, bIdx) => (
+                      <div key={bIdx} className="flex items-center gap-2">
+                        <span className="text-zinc-400 font-bold">•</span>
+                        <input
+                          type="text"
                           value={bullet}
-                          onChange={(e) => updateExperienceBullet(idx, bIdx, e.target.value)}
-                          className="flex-1 px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                          onChange={(e) => updateExperienceBullet(index, bIdx, e.target.value)}
+                          className="flex-1 px-3 py-1.5 text-xs border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         />
                         <button
-                          onClick={() => removeExperienceBullet(idx, bIdx)}
-                          className="text-zinc-400 hover:text-red-500 mt-2"
-                          title="Delete bullet"
+                          onClick={() => removeExperienceBullet(index, bIdx)}
+                          className="text-zinc-400 hover:text-red-500 p-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -486,58 +694,42 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
                     ))}
                   </div>
                 </div>
-              ))
-            )}
+              ))}
+            </div>
           </div>
         )}
 
-        {/* PROJECTS TAB */}
+        {/* 5. PROJECTS TAB */}
         {activeTab === "projects" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                <FolderGit2 className="w-4 h-4 text-blue-600" /> Projects
+                <FolderGit2 className="w-4 h-4 text-blue-600" /> Key Projects
               </h3>
               <button
                 onClick={addProject}
-                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
+                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-900 font-semibold cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Project
+                <Plus className="w-3.5 h-3.5" />
+                Add Project
               </button>
             </div>
 
-            {(!data.projects || data.projects.length === 0) ? (
-              <div className="text-center py-8 px-4 border border-dashed border-zinc-300 dark:border-zinc-800 rounded-lg bg-zinc-50/50 dark:bg-zinc-950/50 space-y-3">
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Projects and achievements are optional. You can leave this empty or add projects as needed.
-                </p>
-                <button
-                  onClick={addProject}
-                  className="inline-flex items-center gap-1.5 text-xs bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" /> Add Project
-                </button>
-              </div>
-            ) : (
-              data.projects.map((proj, idx) => (
+            <div className="space-y-4">
+              {(data.projects || []).map((proj, index) => (
                 <div
-                  key={proj.id}
-                  className="p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-zinc-50/50 dark:bg-zinc-950/50 space-y-3"
+                  key={proj.id || index}
+                  className="p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3 relative"
                 >
-                  <div className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-2">
-                    <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                      Project #{idx + 1}
-                    </span>
-                    <button
-                      onClick={() => removeProject(idx)}
-                      className="text-red-500 hover:text-red-700 text-xs p-1"
-                      title="Remove project"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => removeProject(index)}
+                    className="absolute top-4 right-4 text-zinc-400 hover:text-red-500 transition-colors p-1"
+                    title="Delete Project"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
 
-                  <div className="grid grid-cols-1 gap-3 text-xs">
+                  <div className="space-y-3 text-xs">
                     <div>
                       <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
                         Project Title
@@ -545,52 +737,51 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
                       <input
                         type="text"
                         value={proj.title}
-                        onChange={(e) => updateProject(idx, "title", e.target.value)}
-                        className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold"
+                        onChange={(e) => updateProject(index, "title", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
                     </div>
 
                     <div>
                       <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
-                        Tech Stack (Comma-separated)
+                        Tech Stack Used
                       </label>
                       <input
                         type="text"
                         value={proj.techStack}
-                        onChange={(e) => updateProject(idx, "techStack", e.target.value)}
-                        className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
-                        placeholder="Flutter, Next.js, Firebase, Razorpay"
+                        onChange={(e) => updateProject(index, "techStack", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="Next.js, TypeScript, PostgreSQL, Tailwind CSS"
                       />
                     </div>
                   </div>
 
-                  {/* Bullets List */}
-                  <div className="space-y-2 pt-2">
-                    <div className="flex justify-between items-center">
-                      <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                        Project Highlights (Use **text** for bold keywords)
+                  {/* Bullet Points */}
+                  <div className="space-y-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                        Project Highlights & Details
                       </label>
                       <button
-                        onClick={() => addProjectBullet(idx)}
-                        className="text-[11px] text-blue-600 font-medium hover:underline flex items-center gap-1"
+                        onClick={() => addProjectBullet(index)}
+                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1 cursor-pointer"
                       >
                         <Plus className="w-3 h-3" /> Add Bullet
                       </button>
                     </div>
 
-                    {(proj.bullets || []).map((bullet, bIdx) => (
-                      <div key={bIdx} className="flex gap-2 items-start text-xs">
-                        <span className="mt-2 text-zinc-400 font-bold">•</span>
-                        <textarea
-                          rows={2}
+                    {proj.bullets.map((bullet, bIdx) => (
+                      <div key={bIdx} className="flex items-center gap-2">
+                        <span className="text-zinc-400 font-bold">•</span>
+                        <input
+                          type="text"
                           value={bullet}
-                          onChange={(e) => updateProjectBullet(idx, bIdx, e.target.value)}
-                          className="flex-1 px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                          onChange={(e) => updateProjectBullet(index, bIdx, e.target.value)}
+                          className="flex-1 px-3 py-1.5 text-xs border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         />
                         <button
-                          onClick={() => removeProjectBullet(idx, bIdx)}
-                          className="text-zinc-400 hover:text-red-500 mt-2"
-                          title="Delete bullet"
+                          onClick={() => removeProjectBullet(index, bIdx)}
+                          className="text-zinc-400 hover:text-red-500 p-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -598,253 +789,158 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
                     ))}
                   </div>
                 </div>
-              ))
-            )}
+              ))}
+            </div>
           </div>
         )}
 
-        {/* ACHIEVEMENTS TAB */}
-        {activeTab === "achievements" && (
+        {/* 6. CERTIFICATIONS TAB */}
+        {activeTab === "certifications" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-blue-600" /> Achievements & Certifications
+                <Award className="w-4 h-4 text-blue-600" /> Certifications
               </h3>
               <button
-                onClick={addAchievement}
-                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
+                onClick={addCertification}
+                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-900 font-semibold cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Achievement
+                <Plus className="w-3.5 h-3.5" />
+                Add Certification
               </button>
             </div>
 
-            {(!data.achievements || data.achievements.length === 0) ? (
-              <div className="text-center py-8 px-4 border border-dashed border-zinc-300 dark:border-zinc-800 rounded-lg bg-zinc-50/50 dark:bg-zinc-950/50 space-y-3">
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Achievements & Certifications are optional. Click below to add an entry.
-                </p>
-                <button
-                  onClick={addAchievement}
-                  className="inline-flex items-center gap-1.5 text-xs bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" /> Add Achievement
-                </button>
-              </div>
-            ) : (
-              data.achievements.map((ach, idx) => (
+            <div className="space-y-4">
+              {(data.certifications || []).map((cert, index) => (
                 <div
-                  key={ach.id}
-                  className="p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-zinc-50/50 dark:bg-zinc-950/50 space-y-3"
+                  key={cert.id || index}
+                  className="p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3 relative"
                 >
-                  <div className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-2">
-                    <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                      Achievement #{idx + 1}
-                    </span>
-                    <button
-                      onClick={() => removeAchievement(idx)}
-                      className="text-red-500 hover:text-red-700 text-xs p-1"
-                      title="Remove achievement"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => removeCertification(index)}
+                    className="absolute top-4 right-4 text-zinc-400 hover:text-red-500 transition-colors p-1"
+                    title="Delete Certification"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                     <div className="md:col-span-2">
                       <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
-                        Title / Honor / Certification
+                        Certification Name
                       </label>
                       <input
                         type="text"
-                        value={ach.title}
-                        onChange={(e) => updateAchievement(idx, "title", e.target.value)}
-                        className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold"
-                        placeholder="e.g. 1st Place Winner - National Hackathon"
+                        value={cert.name}
+                        onChange={(e) => updateCertification(index, "name", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="e.g. AWS Certified Solutions Architect"
                       />
                     </div>
 
                     <div>
                       <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
-                        Year / Date (Optional)
+                        Date / Year
+                      </label>
+                      <input
+                        type="text"
+                        value={cert.date || ""}
+                        onChange={(e) => updateCertification(index, "date", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="2023"
+                      />
+                    </div>
+
+                    <div className="md:col-span-3">
+                      <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
+                        Issuing Organization
+                      </label>
+                      <input
+                        type="text"
+                        value={cert.issuer || ""}
+                        onChange={(e) => updateCertification(index, "issuer", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        placeholder="e.g. Amazon Web Services"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 7. ACHIEVEMENTS TAB */}
+        {activeTab === "achievements" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-blue-600" /> Key Achievements & Honors
+              </h3>
+              <button
+                onClick={addAchievement}
+                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-900 font-semibold cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Achievement
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {(data.achievements || []).map((ach, index) => (
+                <div
+                  key={ach.id || index}
+                  className="p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-3 relative"
+                >
+                  <button
+                    onClick={() => removeAchievement(index)}
+                    className="absolute top-4 right-4 text-zinc-400 hover:text-red-500 transition-colors p-1"
+                    title="Delete Achievement"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div className="md:col-span-2">
+                      <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
+                        Achievement Title
+                      </label>
+                      <input
+                        type="text"
+                        value={ach.title}
+                        onChange={(e) => updateAchievement(index, "title", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
+                        Date / Year
                       </label>
                       <input
                         type="text"
                         value={ach.date || ""}
-                        onChange={(e) => updateAchievement(idx, "date", e.target.value)}
-                        className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                        onChange={(e) => updateAchievement(index, "date", e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         placeholder="2024"
                       />
                     </div>
 
                     <div className="md:col-span-3">
                       <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
-                        Description / Key Details
+                        Description / Details
                       </label>
                       <textarea
-                        rows={2}
                         value={ach.description}
-                        onChange={(e) => updateAchievement(idx, "description", e.target.value)}
-                        className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                        placeholder="Awarded top prize among 300+ participants for building a real-time parsing engine."
+                        onChange={(e) => updateAchievement(index, "description", e.target.value)}
+                        rows={2}
+                        className="w-full p-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
                       />
                     </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* EDUCATION TAB */}
-        {activeTab === "education" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-blue-600" /> Education
-              </h3>
-              <button
-                onClick={addEducation}
-                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Education
-              </button>
+              ))}
             </div>
-
-            {data.education.map((edu, idx) => (
-              <div
-                key={edu.id}
-                className="p-4 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-zinc-50/50 dark:bg-zinc-950/50 space-y-3"
-              >
-                <div className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-2">
-                  <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">
-                    Education #{idx + 1}
-                  </span>
-                  <button
-                    onClick={() => removeEducation(idx)}
-                    className="text-red-500 hover:text-red-700 text-xs p-1"
-                    title="Remove education"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
-                      Institution / University Name
-                    </label>
-                    <input
-                      type="text"
-                      value={edu.institution}
-                      onChange={(e) => updateEducation(idx, "institution", e.target.value)}
-                      className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
-                      Degree / Qualification
-                    </label>
-                    <input
-                      type="text"
-                      value={edu.degree}
-                      onChange={(e) => updateEducation(idx, "degree", e.target.value)}
-                      className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
-                      Start Date
-                    </label>
-                    <input
-                      type="text"
-                      value={edu.startDate}
-                      onChange={(e) => updateEducation(idx, "startDate", e.target.value)}
-                      className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
-                      placeholder="Aug. 2020"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
-                      End Date
-                    </label>
-                    <input
-                      type="text"
-                      value={edu.endDate}
-                      onChange={(e) => updateEducation(idx, "endDate", e.target.value)}
-                      className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
-                      placeholder="May 2025"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-zinc-700 dark:text-zinc-300 font-medium mb-1">
-                      CGPA / Grade / Honor
-                    </label>
-                    <input
-                      type="text"
-                      value={edu.gpa || ""}
-                      onChange={(e) => updateEducation(idx, "gpa", e.target.value)}
-                      className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
-                      placeholder="CGPA: 8.98"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* SKILLS TAB */}
-        {activeTab === "skills" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                <Wrench className="w-4 h-4 text-blue-600" /> Categorized Skills
-              </h3>
-              <button
-                onClick={addSkillCategory}
-                className="flex items-center gap-1 text-xs bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Category
-              </button>
-            </div>
-
-            {data.skillCategories.map((sk, idx) => (
-              <div
-                key={sk.id}
-                className="p-3 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-zinc-50/50 dark:bg-zinc-950/50 space-y-2 text-xs"
-              >
-                <div className="flex justify-between items-center">
-                  <input
-                    type="text"
-                    value={sk.category}
-                    onChange={(e) => updateSkillCategory(idx, "category", e.target.value)}
-                    className="font-bold text-zinc-900 dark:text-zinc-100 bg-transparent border-b border-zinc-300 dark:border-zinc-700 focus:outline-none focus:border-blue-500 px-1 py-0.5"
-                    placeholder="Category Name (e.g. Languages)"
-                  />
-                  <button
-                    onClick={() => removeSkillCategory(idx)}
-                    className="text-red-500 hover:text-red-700 p-1"
-                    title="Remove skill category"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div>
-                  <textarea
-                    rows={2}
-                    value={sk.skills}
-                    onChange={(e) => updateSkillCategory(idx, "skills", e.target.value)}
-                    className="w-full px-3 py-1.5 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                    placeholder="Java, Python, Dart, HTML, CSS, SQL"
-                  />
-                </div>
-              </div>
-            ))}
           </div>
         )}
       </div>

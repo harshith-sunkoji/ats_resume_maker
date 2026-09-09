@@ -8,7 +8,7 @@ interface ResumePreviewProps {
   scale?: number;
 }
 
-// Crisp Data-URI img icons for GitHub, LinkedIn, Mail, Phone to guarantee 100% pixel-perfect text baseline alignment in html2canvas & jsPDF export
+// Crisp Data-URI img icons for GitHub, LinkedIn, Mail, Phone
 const GithubIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
   <img
     src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='black'><path fill-rule='evenodd' clip-rule='evenodd' d='M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z'/></svg>"
@@ -65,7 +65,18 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
   data,
   scale = 1,
 }) => {
-  const { personalInfo, experiences, projects, achievements, education, skillCategories } = data;
+  const { personalInfo, summary, experiences, projects, achievements, education, certifications, skillCategories } = data;
+
+  // Separate certifications and non-certification achievements if stored together
+  const explicitCerts = certifications && certifications.length > 0 ? certifications : [];
+  
+  const certsFromAchievements = explicitCerts.length === 0 && achievements
+    ? achievements.filter((ach) => /certif/i.test(ach.title) || /certif/i.test(ach.description))
+    : [];
+
+  const nonCertAchievements = explicitCerts.length > 0
+    ? achievements || []
+    : (achievements || []).filter((ach) => !/certif/i.test(ach.title) && !/certif/i.test(ach.description));
 
   return (
     <div
@@ -76,9 +87,9 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
         fontFamily: "'Inter', Arial, Helvetica, sans-serif",
       }}
     >
-      {/* CANDIDATE HEADER */}
-      <div className="resume-header text-center mb-5">
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-black uppercase mb-2">
+      {/* 1. HEADER / CONTACT INFORMATION */}
+      <div className="resume-header text-center mb-4">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-black uppercase mb-1.5">
           {personalInfo.fullName || "YOUR NAME"}
         </h1>
 
@@ -138,18 +149,92 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
               </a>
             </div>
           )}
+
+          {personalInfo.location && (
+            <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+              <span className="text-black">• {personalInfo.location}</span>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* EXPERIENCE SECTION */}
-      {experiences && experiences.length > 0 && (
-        <section className="mb-5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-          <div className="mb-2.5">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
-              EXPERIENCE
+      {/* 2. PROFESSIONAL SUMMARY */}
+      {Boolean(summary?.trim()) && (
+        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+              PROFESSIONAL SUMMARY
             </h2>
           </div>
-          <div className="space-y-3.5">
+          <p className="text-[12px] leading-relaxed text-gray-900 font-normal">
+            {renderFormattedText(summary!)}
+          </p>
+        </section>
+      )}
+
+      {/* 3. EDUCATION (Placed first before Skills / Experience) */}
+      {education && education.length > 0 && (
+        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+              EDUCATION
+            </h2>
+          </div>
+          <div className="space-y-2">
+            {education.map((edu) => (
+              <div key={edu.id} className="text-[12px] leading-relaxed" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+                {/* Row 1: Institution + Date */}
+                <div className="flex justify-between items-baseline font-bold text-black text-[13px]">
+                  <span>{edu.institution}</span>
+                  <span className="font-medium text-gray-700 text-[11.5px] shrink-0">
+                    {edu.startDate} {edu.startDate && edu.endDate ? "–" : ""} {edu.endDate}
+                  </span>
+                </div>
+                {/* Row 2: Degree + GPA */}
+                <div className="flex justify-between items-baseline italic text-gray-800">
+                  <span>{edu.degree}</span>
+                  {edu.gpa && (
+                    <span className="not-italic font-medium text-gray-800 text-[11.5px] shrink-0">
+                      {edu.gpa}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 4. SKILLS */}
+      {skillCategories && skillCategories.length > 0 && (
+        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+              SKILLS
+            </h2>
+          </div>
+          <div className="space-y-1 text-[12px] leading-relaxed">
+            {skillCategories.map((sk) => (
+              <div key={sk.id} className="flex flex-wrap items-baseline gap-1">
+                <span className="font-bold text-black shrink-0">
+                  {sk.category}:
+                </span>
+                <span className="text-gray-900">{sk.skills}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 5. WORK EXPERIENCE */}
+      {experiences && experiences.length > 0 && (
+        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+              WORK EXPERIENCE
+            </h2>
+          </div>
+          <div className="space-y-3">
             {experiences.map((exp) => (
               <div key={exp.id} className="text-[12px] leading-relaxed" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
                 {/* Row 1: Company + Dates */}
@@ -185,15 +270,15 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
         </section>
       )}
 
-      {/* PROJECTS SECTION */}
+      {/* 6. PROJECTS */}
       {projects && projects.length > 0 && (
-        <section className="mb-5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-          <div className="mb-2.5">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
               PROJECTS
             </h2>
           </div>
-          <div className="space-y-3.5">
+          <div className="space-y-3">
             {projects.map((proj) => (
               <div key={proj.id} className="text-[12px] leading-relaxed" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
                 {/* Project Title */}
@@ -226,16 +311,52 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
         </section>
       )}
 
-      {/* ACHIEVEMENTS SECTION */}
-      {achievements && achievements.length > 0 && (
-        <section className="mb-5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-          <div className="mb-2.5">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
-              ACHIEVEMENTS & CERTIFICATIONS
+      {/* 7. CERTIFICATIONS */}
+      {((explicitCerts && explicitCerts.length > 0) || certsFromAchievements.length > 0) && (
+        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+              CERTIFICATIONS
             </h2>
           </div>
-          <div className="space-y-2.5">
-            {achievements.map((ach) => (
+          <div className="space-y-1.5 text-[12px] leading-relaxed">
+            {explicitCerts.length > 0 ? (
+              explicitCerts.map((cert) => (
+                <div key={cert.id} className="flex justify-between items-baseline font-bold text-black text-[12.5px]">
+                  <span>{cert.name}{cert.issuer ? ` – ${cert.issuer}` : ""}</span>
+                  {cert.date && (
+                    <span className="font-medium text-gray-700 text-[11.5px] shrink-0">
+                      {cert.date}
+                    </span>
+                  )}
+                </div>
+              ))
+            ) : (
+              certsFromAchievements.map((cert) => (
+                <div key={cert.id} className="flex justify-between items-baseline font-bold text-black text-[12.5px]">
+                  <span>{cert.title}</span>
+                  {cert.date && (
+                    <span className="font-medium text-gray-700 text-[11.5px] shrink-0">
+                      {cert.date}
+                    </span>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* 8. ACHIEVEMENTS */}
+      {nonCertAchievements && nonCertAchievements.length > 0 && (
+        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+              ACHIEVEMENTS
+            </h2>
+          </div>
+          <div className="space-y-2 text-[12px] leading-relaxed">
+            {nonCertAchievements.map((ach) => (
               <div key={ach.id} className="text-[12px] leading-relaxed" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
                 <div className="flex justify-between items-baseline font-bold text-black text-[12.5px]">
                   <span>{ach.title}</span>
@@ -250,60 +371,6 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
                     {renderFormattedText(ach.description)}
                   </div>
                 )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* EDUCATION SECTION */}
-      {education && education.length > 0 && (
-        <section className="mb-5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-          <div className="mb-2.5">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
-              EDUCATION
-            </h2>
-          </div>
-          <div className="space-y-2.5">
-            {education.map((edu) => (
-              <div key={edu.id} className="text-[12px] leading-relaxed" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-                {/* Row 1: Institution + Date */}
-                <div className="flex justify-between items-baseline font-bold text-black text-[13px]">
-                  <span>{edu.institution}</span>
-                  <span className="font-medium text-gray-700 text-[11.5px] shrink-0">
-                    {edu.startDate} {edu.startDate && edu.endDate ? "–" : ""} {edu.endDate}
-                  </span>
-                </div>
-                {/* Row 2: Degree + GPA */}
-                <div className="flex justify-between items-baseline italic text-gray-800">
-                  <span>{edu.degree}</span>
-                  {edu.gpa && (
-                    <span className="not-italic font-medium text-gray-800 text-[11.5px] shrink-0">
-                      {edu.gpa}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* SKILLS SECTION */}
-      {skillCategories && skillCategories.length > 0 && (
-        <section className="mb-4" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-          <div className="mb-2.5">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
-              SKILLS
-            </h2>
-          </div>
-          <div className="space-y-1.5 text-[12px] leading-relaxed">
-            {skillCategories.map((sk) => (
-              <div key={sk.id} className="flex flex-wrap items-baseline gap-1">
-                <span className="font-bold text-black shrink-0">
-                  {sk.category}:
-                </span>
-                <span className="text-gray-900">{sk.skills}</span>
               </div>
             ))}
           </div>

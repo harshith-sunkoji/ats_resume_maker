@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { ResumeData } from "@/types/resume";
 import { calculateAtsScore } from "@/utils/atsScore";
-import { ShieldCheck, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import { ShieldCheck, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Sparkles, FileCheck2 } from "lucide-react";
 
 interface AtsScoreCardProps {
   data: ResumeData;
@@ -51,21 +51,20 @@ export const AtsScoreCard: React.FC<AtsScoreCardProps> = ({ data, className = ""
             </span>
           </div>
 
-          {/* Info & Grade */}
+          {/* Info & Readability Grade */}
           <div>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-blue-500" />
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
-                ATS Optimization Score
+                ATS Readability & Match Score
               </h3>
-              <span
-                className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${result.badgeBg}`}
-              >
-                {result.grade}
+              <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <FileCheck2 className="w-3 h-3" />
+                Readability: {result.readabilityScore}/10
               </span>
             </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Based on ATS resume parser guidelines & keyword formatting standards.
+              100% Single-Column Standard ATS Format • Machine-Readable Typography & Headings
             </p>
           </div>
         </div>
@@ -76,7 +75,7 @@ export const AtsScoreCard: React.FC<AtsScoreCardProps> = ({ data, className = ""
           className="flex items-center gap-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 px-3 py-2 rounded-xl transition-all border border-zinc-200 dark:border-zinc-700 cursor-pointer shrink-0"
         >
           <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-          <span>{showDetails ? "Hide Breakdown" : "View Score Breakdown"}</span>
+          <span>{showDetails ? "Hide Readability Breakdown" : "View ATS Readability Breakdown"}</span>
           {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
       </div>
@@ -84,9 +83,15 @@ export const AtsScoreCard: React.FC<AtsScoreCardProps> = ({ data, className = ""
       {/* EXPANDABLE BREAKDOWN */}
       {showDetails && (
         <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
-          <h4 className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider mb-2">
-            ATS Checklist Breakdown
-          </h4>
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">
+              ATS Parser Compatibility & Readability Checklist
+            </h4>
+            <span className="text-[11px] font-mono font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+              ATS Readability Grade: {result.readabilityScore}/10
+            </span>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
             {result.checks.map((item, index) => (
               <div

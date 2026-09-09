@@ -33,6 +33,13 @@ export interface Education {
   gpa?: string;
 }
 
+export interface Certification {
+  id: string;
+  name: string;
+  issuer?: string;
+  date?: string;
+}
+
 export interface Achievement {
   id: string;
   title: string;
@@ -48,11 +55,13 @@ export interface SkillCategory {
 
 export interface ResumeData {
   personalInfo: PersonalInfo;
+  summary?: string;
+  skillCategories: SkillCategory[];
   experiences: Experience[];
   projects: Project[];
-  achievements: Achievement[];
   education: Education[];
-  skillCategories: SkillCategory[];
+  certifications?: Certification[];
+  achievements: Achievement[];
 }
 
 export const DEFAULT_RESUME_DATA: ResumeData = {
@@ -64,6 +73,29 @@ export const DEFAULT_RESUME_DATA: ResumeData = {
     email: "alex.morgan@example.com",
     location: "San Francisco, CA",
   },
+  summary: "Results-driven Senior Software Engineer with 4+ years of experience engineering scalable web applications, microservices, and modern cloud architectures. Proven track record of optimizing system performance by 35% and delivering robust full-stack software.",
+  skillCategories: [
+    {
+      id: "skill-1",
+      category: "Languages",
+      skills: "TypeScript, JavaScript, Python, Java, SQL, HTML/CSS",
+    },
+    {
+      id: "skill-2",
+      category: "Database",
+      skills: "PostgreSQL, MongoDB, Redis",
+    },
+    {
+      id: "skill-3",
+      category: "Frameworks / Libraries",
+      skills: "React, Next.js, Node.js, Express, Tailwind CSS",
+    },
+    {
+      id: "skill-4",
+      category: "Tools & Cloud",
+      skills: "Git, Docker, AWS, VS Code, Vercel",
+    },
+  ],
   experiences: [
     {
       id: "exp-1",
@@ -100,20 +132,6 @@ export const DEFAULT_RESUME_DATA: ResumeData = {
       ],
     },
   ],
-  achievements: [
-    {
-      id: "ach-1",
-      title: "1st Place Winner - Global AI & Web Hackathon",
-      description: "Built an open-source real-time accessibility parsing engine competing against 300+ international teams.",
-      date: "2024",
-    },
-    {
-      id: "ach-2",
-      title: "AWS Certified Solutions Architect",
-      description: "Achieved professional cloud architecture certification with high honors.",
-      date: "2023",
-    },
-  ],
   education: [
     {
       id: "edu-1",
@@ -124,26 +142,20 @@ export const DEFAULT_RESUME_DATA: ResumeData = {
       gpa: "GPA: 3.8 / 4.0",
     },
   ],
-  skillCategories: [
+  certifications: [
     {
-      id: "skill-1",
-      category: "Languages",
-      skills: "TypeScript, JavaScript, Python, Java, SQL, HTML/CSS",
+      id: "cert-1",
+      name: "AWS Certified Solutions Architect",
+      issuer: "Amazon Web Services",
+      date: "2023",
     },
+  ],
+  achievements: [
     {
-      id: "skill-2",
-      category: "Database",
-      skills: "PostgreSQL, MongoDB, Redis",
-    },
-    {
-      id: "skill-3",
-      category: "Frameworks / Libraries",
-      skills: "React, Next.js, Node.js, Express, Tailwind CSS",
-    },
-    {
-      id: "skill-4",
-      category: "Tools & Cloud",
-      skills: "Git, Docker, AWS, VS Code, Vercel",
+      id: "ach-1",
+      title: "1st Place Winner - Global AI & Web Hackathon",
+      description: "Built an open-source real-time accessibility parsing engine competing against 300+ international teams.",
+      date: "2024",
     },
   ],
 };

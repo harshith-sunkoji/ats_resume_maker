@@ -7,6 +7,7 @@ import { ResumePreview } from "@/components/ResumePreview";
 import { ResumeEditor } from "@/components/ResumeEditor";
 import { PdfUploader } from "@/components/PdfUploader";
 import { JdAnalyzer } from "@/components/JdAnalyzer";
+import { AtsScoreCard } from "@/components/AtsScoreCard";
 import {
   Download,
   Eye,
@@ -176,6 +177,9 @@ export default function Home() {
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 w-full max-w-[1920px] mx-auto p-4 md:p-6 space-y-6">
+        {/* ATS READABILITY & OPTIMIZATION SCORE CARD */}
+        <AtsScoreCard data={resumeData} />
+
         {/* PDF UPLOADER & JD ANALYZER GRID */}
         <div className="no-print grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <PdfUploader

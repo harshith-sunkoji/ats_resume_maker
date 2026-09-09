@@ -18,6 +18,29 @@ Format the output strictly as JSON following this schema:
     "email": "user@example.com",
     "location": "City, Country or State"
   },
+  "summary": "2-3 sentence professional summary highlighting technical experience, core competencies, and career focus.",
+  "skillCategories": [
+    {
+      "id": "skill-1",
+      "category": "Languages",
+      "skills": "Java, Python, Dart, HTML, CSS, SQL"
+    },
+    {
+      "id": "skill-2",
+      "category": "Database",
+      "skills": "MongoDB, Firebase"
+    },
+    {
+      "id": "skill-3",
+      "category": "Frameworks / Libraries",
+      "skills": "Flutter, Next.js, Node.js"
+    },
+    {
+      "id": "skill-4",
+      "category": "Tools & Cloud",
+      "skills": "Git, Docker, AWS, VS Code"
+    }
+  ],
   "experiences": [
     {
       "id": "exp-1",
@@ -43,14 +66,6 @@ Format the output strictly as JSON following this schema:
       ]
     }
   ],
-  "achievements": [
-    {
-      "id": "ach-1",
-      "title": "Award / Certification / Distinction Title",
-      "description": "Details regarding the honor, rank, hackathon win, or certification",
-      "date": "2024"
-    }
-  ],
   "education": [
     {
       "id": "edu-1",
@@ -61,36 +76,31 @@ Format the output strictly as JSON following this schema:
       "gpa": "CGPA: 8.98 or GPA string"
     }
   ],
-  "skillCategories": [
+  "certifications": [
     {
-      "id": "skill-1",
-      "category": "Languages",
-      "skills": "Java, Python, Dart, HTML, CSS, SQL"
-    },
+      "id": "cert-1",
+      "name": "AWS Certified Solutions Architect",
+      "issuer": "Amazon Web Services",
+      "date": "2023"
+    }
+  ],
+  "achievements": [
     {
-      "id": "skill-2",
-      "category": "Database",
-      "skills": "MongoDB, Firebase"
-    },
-    {
-      "id": "skill-3",
-      "category": "Frameworks / Libraries",
-      "skills": "Flutter, Next.js, Node.js"
-    },
-    {
-      "id": "skill-4",
-      "category": "Tools",
-      "skills": "Git, Docker, VS Code"
+      "id": "ach-1",
+      "title": "Hackathon Winner / Academic Award Title",
+      "description": "Details regarding the honor, rank, or award distinction",
+      "date": "2024"
     }
   ]
 }
 
 Instructions:
-1. Ensure all bullet points are strong, clear, ATS-friendly action statements.
-2. Group skills logically into categories like "Languages", "Database", "Frameworks / Libraries", "Tools", or appropriate custom categories.
-3. Clean up formatting, preserve exact numbers/metrics, and avoid filler text.
-4. Work Experience, Achievements, and Projects are DISTINCT, SEPARATE, OPTIONAL sections. Do NOT combine experience and achievements together. If a candidate has achievements/certifications/awards, place them in "achievements". If any section is missing (e.g. freshers with no experience), return an empty array [] for that section.
-5. Output ONLY valid raw JSON with NO markdown code block wrappers (no \`\`\`json).
+1. Always generate a clear, compelling 2-3 sentence "summary" capturing technical strengths, core stack, and career background.
+2. Group technical skills into clear categories like "Languages", "Database", "Frameworks / Libraries", "Tools & Cloud" with high keyword density (8+ skills total).
+3. Ensure all work experience and project bullets start with strong ATS action verbs (e.g. Architected, Engineered, Developed, Optimized, Integrated) and include quantifiable metrics (% or $ or speed gains) where applicable.
+4. Preserve exact dates, degrees, institution names, certifications, and candidate contact details.
+5. Work Experience, Achievements, and Projects are DISTINCT sections. If a candidate has achievements/certifications/awards, place them in "certifications" or "achievements".
+6. Output ONLY valid raw JSON with NO markdown code block wrappers (no \`\`\`json).
 `;
 
 export async function POST(req: NextRequest) {
@@ -241,6 +251,11 @@ export async function POST(req: NextRequest) {
     parsedData.education = (parsedData.education || []).map((edu, idx) => ({
       ...edu,
       id: edu?.id || `edu-${idx + 1}`,
+    }));
+    parsedData.certifications = (parsedData.certifications || []).map((cert, idx) => ({
+      ...cert,
+      id: cert?.id || `cert-${idx + 1}`,
+      name: cert?.name || "",
     }));
     parsedData.skillCategories = (parsedData.skillCategories || []).map((sk, idx) => ({
       ...sk,
