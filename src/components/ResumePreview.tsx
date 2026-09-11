@@ -81,15 +81,15 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
   return (
     <div
       id="ats-resume-document"
-      className="bg-white text-black font-sans w-[210mm] min-h-[297mm] p-[12mm] md:p-[15mm] shadow-xl border border-gray-200 mx-auto transition-transform origin-top select-text"
+      className="bg-white text-black font-sans w-[210mm] min-h-[297mm] p-[10mm] md:p-[12mm] shadow-xl border border-gray-200 mx-auto transition-transform origin-top select-text"
       style={{
         transform: scale !== 1 ? `scale(${scale})` : undefined,
         fontFamily: "'Inter', Arial, Helvetica, sans-serif",
       }}
     >
       {/* 1. HEADER / CONTACT INFORMATION */}
-      <div className="resume-header text-center mb-4">
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-black uppercase mb-1.5">
+      <div className="resume-header text-center mb-3">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-black uppercase mb-1">
           {personalInfo.fullName || "YOUR NAME"}
         </h1>
 
@@ -160,9 +160,9 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
 
       {/* 2. PROFESSIONAL SUMMARY */}
       {Boolean(summary?.trim()) && (
-        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-          <div className="mb-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+        <section className="mb-3.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-1.5">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-0.5 border-b border-gray-400">
               PROFESSIONAL SUMMARY
             </h2>
           </div>
@@ -174,13 +174,13 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
 
       {/* 3. EDUCATION (Placed first before Skills / Experience) */}
       {education && education.length > 0 && (
-        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-          <div className="mb-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+        <section className="mb-3.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-1.5">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-0.5 border-b border-gray-400">
               EDUCATION
             </h2>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {education.map((edu) => (
               <div key={edu.id} className="text-[12px] leading-relaxed" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
                 {/* Row 1: Institution + Date */}
@@ -207,34 +207,46 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
 
       {/* 4. SKILLS */}
       {skillCategories && skillCategories.length > 0 && (
-        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-          <div className="mb-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+        <section className="mb-3.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-1.5">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-0.5 border-b border-gray-400">
               SKILLS
             </h2>
           </div>
           <div className="space-y-1 text-[12px] leading-relaxed">
-            {skillCategories.map((sk) => (
-              <div key={sk.id} className="flex flex-wrap items-baseline gap-1">
-                <span className="font-bold text-black shrink-0">
-                  {sk.category}:
-                </span>
-                <span className="text-gray-900">{sk.skills}</span>
-              </div>
-            ))}
+            {skillCategories.map((sk) => {
+              const deduplicatedSkills = sk.skills
+                ? Array.from(
+                    new Set(
+                      sk.skills
+                        .split(/[,;]/)
+                        .map((s) => s.trim())
+                        .filter(Boolean)
+                    )
+                  ).join(", ")
+                : "";
+              return (
+                <div key={sk.id} className="flex flex-wrap items-baseline gap-1">
+                  <span className="font-bold text-black shrink-0">
+                    {sk.category}:
+                  </span>
+                  <span className="text-gray-900">{deduplicatedSkills}</span>
+                </div>
+              );
+            })}
           </div>
         </section>
       )}
 
       {/* 5. WORK EXPERIENCE */}
       {experiences && experiences.length > 0 && (
-        <section className="mb-4.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-          <div className="mb-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-1 border-b border-gray-400">
+        <section className="mb-3.5" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          <div className="mb-1.5">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-black pb-0.5 border-b border-gray-400">
               WORK EXPERIENCE
             </h2>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {experiences.map((exp) => (
               <div key={exp.id} className="text-[12px] leading-relaxed" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
                 {/* Row 1: Company + Dates */}

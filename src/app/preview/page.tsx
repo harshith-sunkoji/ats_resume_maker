@@ -21,6 +21,7 @@ import {
   FileCheck,
   Loader2,
   Sparkles,
+  Printer,
 } from "lucide-react";
 
 export default function PreviewPage() {
@@ -50,7 +51,7 @@ export default function PreviewPage() {
   useEffect(() => {
     try {
       const savedResume =
-        localStorage.getItem("ats_resume_data");
+        localStorage.getItem("resume_data");
 
       if (savedResume) {
         try {
@@ -579,11 +580,15 @@ export default function PreviewPage() {
       // RENDER RESUME TO CANVAS
       // ========================================================
 
+      // ========================================================
+      // RENDER RESUME TO CANVAS (HIGH DPI SCALE 3.5 FOR CRISP FONT CLARITY)
+      // ========================================================
+
       const canvas =
         await html2canvas(
           clone,
           {
-            scale: 2,
+            scale: 3.5,
 
             width: renderWidth,
 
@@ -785,50 +790,131 @@ export default function PreviewPage() {
         });
 
       // ========================================================
-      // A4 PAGE SIZE
+      // A4 PAGE SIZE & NATURAL ASPECT RATIO DIMENSIONS
       // ========================================================
 
       const pageWidth =
-        pdf.internal.pageSize.getWidth();
+        pdf.internal.pageSize.getWidth(); // 210 mm
 
       const pageHeight =
-        pdf.internal.pageSize.getHeight();
+        pdf.internal.pageSize.getHeight(); // 297 mm
 
       // ========================================================
-      // ADD FULL-PAGE RESUME IMAGE (EDGE-TO-EDGE, NO OFFSET)
+      // SMART WHITE-SPACE SNAPPING & MULTI-PAGE MARGIN PADDING
       // ========================================================
 
-      pdf.addImage(
-        canvas,
-        "JPEG",
-        0,
-        0,
-        pageWidth,
-        pageHeight,
-        undefined,
-        "FAST"
-      );
+      const pageCanvasHeight = Math.floor((canvas.width * 297) / 210);
+      const marginPx = Math.floor((canvas.width * 12) / 210); // 12mm margin padding
+      const ctx = canvas.getContext("2d");
+
+      if (canvas.height <= pageCanvasHeight + 20) {
+        // Fits within single A4 page - 1 page export
+        const imgData = canvas.toDataURL("image/png", 1.0);
+        pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight, undefined, "FAST");
+      } else {
+        // Multi-page content - Slice canvas at white space between text lines with top/bottom margins
+        let currentY = 0;
+        let pageIndex = 0;
+
+        while (currentY < canvas.height) {
+          const isFirstPage = pageIndex === 0;
+          const topPadding = isFirstPage ? 0 : marginPx; // Page 1 has built-in top padding
+          const usableHeight = pageCanvasHeight - topPadding - marginPx;
+
+          let targetY = currentY + usableHeight;
+
+          // If not the last slice, scan upward for a blank white row
+          if (targetY < canvas.height && ctx) {
+            const scanLimit = Math.floor(usableHeight * 0.18); // ~45mm search window
+            let bestY = targetY;
+
+            for (let offset = 0; offset < scanLimit; offset++) {
+              const checkY = targetY - offset;
+              if (checkY <= currentY + 100) break;
+
+              const rowData = ctx.getImageData(0, checkY, canvas.width, 1).data;
+              let isWhite = true;
+
+              for (let x = 0; x < canvas.width * 4; x += 16) {
+                const r = rowData[x];
+                const g = rowData[x + 1];
+                const b = rowData[x + 2];
+                const a = rowData[x + 3];
+                if (a > 0 && (r < 245 || g < 245 || b < 245)) {
+                  isWhite = false;
+                  break;
+                }
+              }
+
+              if (isWhite) {
+                bestY = checkY;
+                break;
+              }
+            }
+            targetY = bestY;
+          } else if (targetY > canvas.height) {
+            targetY = canvas.height;
+          }
+
+          const sliceHeight = targetY - currentY;
+          if (sliceHeight <= 0) break;
+
+          // Render page slice onto A4 aspect ratio sub-canvas with top margin offset
+          const sliceCanvas = document.createElement("canvas");
+          sliceCanvas.width = canvas.width;
+          sliceCanvas.height = pageCanvasHeight;
+
+          const sliceCtx = sliceCanvas.getContext("2d");
+          if (sliceCtx) {
+            sliceCtx.fillStyle = "#ffffff";
+            sliceCtx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+            sliceCtx.drawImage(
+              canvas,
+              0,
+              currentY,
+              canvas.width,
+              sliceHeight,
+              0,
+              topPadding,
+              canvas.width,
+              sliceHeight
+            );
+          }
+
+          const pageDataUrl = sliceCanvas.toDataURL("image/png", 1.0);
+
+          if (pageIndex > 0) {
+            pdf.addPage();
+          }
+
+          pdf.addImage(pageDataUrl, "PNG", 0, 0, pageWidth, pageHeight, undefined, "FAST");
+
+          pageIndex++;
+          currentY = targetY;
+        }
+      }
 
       // ========================================================
       // ATTACH CLICKABLE HYPERLINKS (LINKEDIN, GITHUB, EMAIL)
       // ========================================================
 
       linksData.forEach((link) => {
-        const linkX =
-          link.relX * pageWidth;
+        const linkYOnTotalDoc = link.relY * ((canvas.height * pageWidth) / canvas.width);
+        const pageIndex = Math.floor(linkYOnTotalDoc / pageHeight);
+        const linkYOnPage = linkYOnTotalDoc % pageHeight;
 
-        const linkY =
-          link.relY * pageHeight;
+        const linkX = link.relX * pageWidth;
+        const linkW = link.relW * pageWidth;
+        const linkH = link.relH * pageWidth;
 
-        const linkW =
-          link.relW * pageWidth;
+        const totalPages = pdf.getNumberOfPages();
+        const targetPage = Math.min(pageIndex + 1, totalPages);
 
-        const linkH =
-          link.relH * pageHeight;
+        pdf.setPage(targetPage);
 
         pdf.link(
           linkX,
-          linkY,
+          linkYOnPage,
           linkW,
           linkH,
           {
@@ -855,7 +941,7 @@ export default function PreviewPage() {
           );
 
       const fileName =
-        `${safeName}_ATS_Resume.pdf`;
+        `${safeName}_Resume.pdf`;
 
       // ========================================================
       // DOWNLOAD
@@ -937,6 +1023,10 @@ export default function PreviewPage() {
 
   const handleResetZoom = () => {
     setScale(1);
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   // ============================================================
@@ -1052,7 +1142,7 @@ export default function PreviewPage() {
             </div>
 
             {/* =================================================
-                DOWNLOAD
+                PRINT / SAVE VECTOR PDF & DOWNLOAD BUTTONS
                 ================================================= */}
 
             <button

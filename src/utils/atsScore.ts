@@ -123,11 +123,18 @@ export function calculateAtsScore(data: ResumeData): AtsScoreResult {
 
   let totalSkillsCount = 0;
   if (hasSkills) {
+    const uniqueSkillsSet = new Set<string>();
     data.skillCategories.forEach((cat) => {
       if (cat.skills) {
-        totalSkillsCount += cat.skills.split(/[,;]/).filter((s) => s.trim().length > 0).length;
+        cat.skills.split(/[,;]/).forEach((s) => {
+          const trimmed = s.trim().toLowerCase();
+          if (trimmed.length > 0) {
+            uniqueSkillsSet.add(trimmed);
+          }
+        });
       }
     });
+    totalSkillsCount = uniqueSkillsSet.size;
   }
 
   const hasEnoughSkills = totalSkillsCount >= 6;

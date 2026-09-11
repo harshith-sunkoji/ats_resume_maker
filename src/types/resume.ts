@@ -73,62 +73,62 @@ export const DEFAULT_RESUME_DATA: ResumeData = {
     email: "alex.morgan@example.com",
     location: "San Francisco, CA",
   },
-  summary: "Results-driven Senior Software Engineer with 4+ years of experience engineering scalable web applications, microservices, and modern cloud architectures. Proven track record of optimizing system performance by 35% and delivering robust full-stack software.",
+  summary: "Detail-oriented Quality Assurance Specialist & Software Engineer proficient in Java, Python, Dart, Next.js, Node.js, and Flutter. Experienced across the full Software Testing Life Cycle (STLC), automated testing with Playwright, API testing via Postman, and cloud deployment. Adept at bug tracking in Jira, regression testing, performance testing, and quality reporting with acute attention to detail.",
   skillCategories: [
     {
       id: "skill-1",
       category: "Languages",
-      skills: "TypeScript, JavaScript, Python, Java, SQL, HTML/CSS",
+      skills: "Java, Python, Dart, HTML, CSS, R, SQL",
     },
     {
       id: "skill-2",
       category: "Database",
-      skills: "PostgreSQL, MongoDB, Redis",
+      skills: "MongoDB, Firebase",
     },
     {
       id: "skill-3",
       category: "Frameworks / Libraries",
-      skills: "React, Next.js, Node.js, Express, Tailwind CSS",
+      skills: "Flutter, Next.js, Node.js",
     },
     {
       id: "skill-4",
       category: "Tools & Cloud",
-      skills: "Git, Docker, AWS, VS Code, Vercel",
+      skills: "Git, GitBash, Jira, VS Code, Android Studio, Salesforce, Manual Testing, Automated Tests, Performance Testing, Infrastructure Testing, Cloud Deployment, Application Deployment Testing, Quality Assurance, STLC, Bug Life Cycle, Quality Reporting, Debugging, Attention to Detail, Playwright, Functional Testing, Regression Testing, Automation Testing, Postman, API Testing, Problem-Solving, Test Cases, Test Plans, Retest Bugs",
     },
   ],
   experiences: [
     {
       id: "exp-1",
       company: "Tech Solutions Inc.",
-      role: "Software Engineer",
+      role: "Quality Assurance Engineer & Full-Stack Developer",
       startDate: "Sep. 2023",
       endDate: "Present",
       location: "San Francisco, CA",
       bullets: [
-        "Architected and maintained scalable web applications using React, Next.js, and Node.js.",
-        "Integrated payment gateways and third-party APIs for automated workflow processing.",
-        "Improved application loading performance by 35% through bundle optimization and efficient state management.",
-        "Collaborated with cross-functional product teams to design modern, responsive user interfaces.",
+        "Engineered and executed automated testing suites, test plans, and test cases using **Playwright**, **Python**, and **Java**, reducing regression testing duration by 40%.",
+        "Conducted comprehensive **API testing** using **Postman**, functional testing, and manual testing for microservices built on **Node.js** and **Next.js**.",
+        "Managed complete **Bug Life Cycle** and **STLC** processes in **Jira**, authoring quality reporting dashboards and retest bugs procedures with keen attention to detail.",
+        "Executed **performance testing**, infrastructure testing, and **cloud deployment** validation on AWS and Firebase databases.",
       ],
     },
   ],
   projects: [
     {
       id: "proj-1",
-      title: "E-Commerce & Inventory Management Platform",
-      techStack: "Next.js, TypeScript, PostgreSQL, Tailwind CSS, Stripe",
+      title: "AI Application Testing & Quality Assurance Hub",
+      techStack: "Python, Playwright, Postman, Next.js, Node.js, MongoDB",
       bullets: [
-        "Engineered a full-stack e-commerce web platform featuring real-time inventory tracking and dynamic checkout flows.",
-        "Built secure user authentication, order processing, and administrative dashboard management.",
+        "Engineered an AI application testing suite for automated test cases, test plans, and real-time quality reporting using **Playwright** and **Postman**.",
+        "Leveraged **MongoDB** for tracking bug lifecycles, retest bugs workflows, and automated test suite performance metrics.",
       ],
     },
     {
       id: "proj-2",
-      title: "AI-Powered Document Assistant",
-      techStack: "Python, FastAPI, React, LLM API, Docker",
+      title: "Cross-Platform Mobile App & Deployment Pipeline",
+      techStack: "Flutter, Dart, Firebase, Git, GitBash, Android Studio, Jira",
       bullets: [
-        "Developed an intelligent document analysis tool leveraging LLMs for automated information extraction.",
-        "Designed REST APIs and background task processors to handle document parsing efficiently.",
+        "Architected cross-platform mobile application utilizing **Flutter**, **Dart**, and **Firebase** backend database services.",
+        "Automated continuous integration and application deployment testing using **GitBash**, **VS Code**, and **Salesforce** integration endpoints.",
       ],
     },
   ],
@@ -159,3 +159,4 @@ export const DEFAULT_RESUME_DATA: ResumeData = {
     },
   ],
 };
+

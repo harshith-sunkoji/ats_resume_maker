@@ -8,6 +8,7 @@ import { ResumeEditor } from "@/components/ResumeEditor";
 import { PdfUploader } from "@/components/PdfUploader";
 import { JdAnalyzer } from "@/components/JdAnalyzer";
 import { AtsScoreCard } from "@/components/AtsScoreCard";
+import { PromptGenerator } from "@/components/PromptGenerator";
 import {
   Download,
   Eye,
@@ -19,10 +20,14 @@ import {
   Sparkles,
   FileCheck,
   ExternalLink,
+  Undo2,
+  Redo2,
 } from "lucide-react";
 
 export default function Home() {
   const [resumeData, setResumeData] = useState<ResumeData>(DEFAULT_RESUME_DATA);
+  const [history, setHistory] = useState<ResumeData[]>([]);
+  const [future, setFuture] = useState<ResumeData[]>([]);
   const [viewMode, setViewMode] = useState<"split" | "editor" | "preview">("split");
   const [scale, setScale] = useState<number>(0.85);
   const router = useRouter();
@@ -30,7 +35,7 @@ export default function Home() {
   // Sync resumeData with localStorage
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("ats_resume_data");
+      const saved = localStorage.getItem("resume_data");
       if (saved) {
         setResumeData(JSON.parse(saved));
       }
@@ -40,17 +45,76 @@ export default function Home() {
   }, []);
 
   const handleUpdateResumeData = (newData: ResumeData) => {
+    if (JSON.stringify(newData) !== JSON.stringify(resumeData)) {
+      setHistory((prev) => [...prev.slice(-29), resumeData]);
+      setFuture([]);
+    }
     setResumeData(newData);
     try {
-      localStorage.setItem("ats_resume_data", JSON.stringify(newData));
+      localStorage.setItem("resume_data", JSON.stringify(newData));
     } catch (e) {
       console.error("Failed to save resumeData to localStorage", e);
     }
   };
 
+  const handleUndo = () => {
+    if (history.length === 0) return;
+    const previousState = history[history.length - 1];
+    const newHistory = history.slice(0, history.length - 1);
+    setFuture((prev) => [resumeData, ...prev]);
+    setHistory(newHistory);
+    setResumeData(previousState);
+    try {
+      localStorage.setItem("resume_data", JSON.stringify(previousState));
+    } catch (e) {
+      console.error("Failed to save resumeData to localStorage", e);
+    }
+  };
+
+  const handleRedo = () => {
+    if (future.length === 0) return;
+    const nextState = future[0];
+    const newFuture = future.slice(1);
+    setHistory((prev) => [...prev, resumeData]);
+    setFuture(newFuture);
+    setResumeData(nextState);
+    try {
+      localStorage.setItem("resume_data", JSON.stringify(nextState));
+    } catch (e) {
+      console.error("Failed to save resumeData to localStorage", e);
+    }
+  };
+
+  // Keyboard shortcut listener for Undo / Redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") {
+        const activeElem = document.activeElement;
+        const isInputField = activeElem && (activeElem.tagName === "INPUT" || activeElem.tagName === "TEXTAREA");
+        if (!isInputField) {
+          e.preventDefault();
+          if (e.shiftKey) {
+            handleRedo();
+          } else {
+            handleUndo();
+          }
+        }
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "y") {
+        const activeElem = document.activeElement;
+        const isInputField = activeElem && (activeElem.tagName === "INPUT" || activeElem.tagName === "TEXTAREA");
+        if (!isInputField) {
+          e.preventDefault();
+          handleRedo();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [history, future, resumeData]);
+
   const handleGoToPreviewPage = () => {
     try {
-      localStorage.setItem("ats_resume_data", JSON.stringify(resumeData));
+      localStorage.setItem("resume_data", JSON.stringify(resumeData));
     } catch (e) {
       console.error("Failed to save resumeData to localStorage", e);
     }
@@ -81,13 +145,36 @@ export default function Home() {
                 </span>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">
-                Upload PDF • AI Extraction • Live ATS Template Preview • Full Preview Page & Export
+                Upload PDF • AI Prompt Generator • AI Job Matcher • Live ATS Template Preview
               </p>
             </div>
           </div>
 
           {/* View Toggles & Actions */}
           <div className="flex flex-wrap items-center gap-2">
+            {/* Undo & Redo Controls in Header */}
+            <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold">
+              <button
+                onClick={handleUndo}
+                disabled={history.length === 0}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all text-zinc-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-900 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed"
+                title="Undo last change (Cmd+Z)"
+              >
+                <Undo2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <span className="hidden sm:inline">Undo</span>
+              </button>
+
+              <button
+                onClick={handleRedo}
+                disabled={future.length === 0}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all text-zinc-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-900 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed border-l border-zinc-300 dark:border-zinc-700 pl-2.5"
+                title="Redo change (Cmd+Shift+Z)"
+              >
+                <Redo2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                <span className="hidden sm:inline">Redo</span>
+              </button>
+            </div>
+
             {/* View Mode Buttons */}
             <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold">
               <button
@@ -180,14 +267,21 @@ export default function Home() {
         {/* ATS READABILITY & OPTIMIZATION SCORE CARD */}
         <AtsScoreCard data={resumeData} />
 
-        {/* PDF UPLOADER & JD ANALYZER GRID */}
+        {/* AI PROMPT GENERATOR, PDF UPLOADER & JD ANALYZER GRID */}
         <div className="no-print grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <PdfUploader
-            onParsed={(extracted) => {
-              handleUpdateResumeData(extracted);
-            }}
-            onResetSample={() => handleUpdateResumeData(DEFAULT_RESUME_DATA)}
-          />
+          <div className="space-y-6">
+            <PdfUploader
+              onParsed={(extracted) => {
+                handleUpdateResumeData(extracted);
+              }}
+              onResetSample={() => handleUpdateResumeData(DEFAULT_RESUME_DATA)}
+            />
+            <PromptGenerator
+              resumeData={resumeData}
+              onUpdateResumeData={(updated) => handleUpdateResumeData(updated)}
+            />
+          </div>
+
           <JdAnalyzer
             resumeData={resumeData}
             onUpdateResumeData={(updated) => handleUpdateResumeData(updated)}
@@ -225,10 +319,35 @@ export default function Home() {
                 viewMode === "split" ? "lg:col-span-7" : "w-full"
               } flex flex-col items-center overflow-x-auto`}
             >
-              <div className="w-full flex items-center justify-between mb-2 text-xs text-zinc-500 dark:text-zinc-400 no-print px-2">
+              {/* Controls bar directly above resume document */}
+              <div className="w-full flex flex-wrap items-center justify-between gap-2 mb-2 text-xs text-zinc-500 dark:text-zinc-400 no-print px-2">
                 <span className="font-semibold flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-blue-500" /> Standard ATS Resume Template
                 </span>
+
+                {/* Undo & Redo Action Bar Directly Above Resume */}
+                <div className="flex items-center gap-1 bg-zinc-200/90 dark:bg-zinc-800/90 px-2 py-1 rounded-xl border border-zinc-300/80 dark:border-zinc-700/80 text-xs font-semibold">
+                  <button
+                    onClick={handleUndo}
+                    disabled={history.length === 0}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all text-zinc-800 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-900 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed"
+                    title="Undo edit (Cmd+Z)"
+                  >
+                    <Undo2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                    <span>Undo</span>
+                  </button>
+
+                  <button
+                    onClick={handleRedo}
+                    disabled={future.length === 0}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all text-zinc-800 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-900 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed border-l border-zinc-300 dark:border-zinc-700 pl-2.5"
+                    title="Redo edit (Cmd+Shift+Z)"
+                  >
+                    <Redo2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <span>Redo</span>
+                  </button>
+                </div>
+
                 <span>Format: Standard A4 • Single-column ATS Compliant</span>
               </div>
 
