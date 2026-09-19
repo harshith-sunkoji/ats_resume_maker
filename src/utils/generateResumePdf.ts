@@ -303,7 +303,7 @@ class Cursor {
 function drawSectionHead(cur: Cursor, title: string) {
   const { pdf, l } = cur;
   cur.need(l.lhSection + 2);
-  pdf.setFont("helvetica", "bold");
+  pdf.setFont("times", "bold");
   pdf.setFontSize(l.fsSection);
   pdf.setTextColor(0, 0, 0);
   pdf.text(title.toUpperCase(), l.marginX, cur.y);
@@ -323,7 +323,7 @@ function drawTwoCol(
   const { pdf, l } = cur;
   cur.need(l.lhBody + 1);
   pdf.setFontSize(fs);
-  pdf.setFont("helvetica", leftBold ? "bold" : "normal");
+  pdf.setFont("times", leftBold ? "bold" : "normal");
   pdf.setTextColor(leftGray ? 70 : 0, leftGray ? 70 : 0, leftGray ? 70 : 0);
   // Truncate left if too long to avoid overlap
   const rightW  = pdf.getTextWidth(right);
@@ -333,7 +333,7 @@ function drawTwoCol(
     leftText = leftText.slice(0, -1);
   }
   pdf.text(leftText, l.marginX, cur.y);
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont("times", "normal");
   pdf.setTextColor(80, 80, 80);
   pdf.text(right, PAGE_W - l.marginX, cur.y, { align: "right" });
   cur.y += l.lhBody;
@@ -342,11 +342,11 @@ function drawTwoCol(
 // Draw "Label: value" where label is bold and value wraps naturally
 function drawSkillLine(cur: Cursor, label: string, value: string) {
   const { pdf, l } = cur;
-  pdf.setFont("helvetica", "bold");
+  pdf.setFont("times", "bold");
   pdf.setFontSize(l.fsBody);
   const labelW = pdf.getTextWidth(label);
 
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont("times", "normal");
   // Wrap the value across available width. First line is shorter (label takes some space).
   const firstLineW = cw(l) - labelW;
   const allLines   = pdf.splitTextToSize(value, cw(l)) as string[];
@@ -373,12 +373,12 @@ function drawSkillLine(cur: Cursor, label: string, value: string) {
   cur.need(l.lhBody * totalLines);
 
   // Draw label
-  pdf.setFont("helvetica", "bold");
+  pdf.setFont("times", "bold");
   pdf.setTextColor(0, 0, 0);
   pdf.text(label, l.marginX, cur.y);
 
   // Draw first value segment on same line
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont("times", "normal");
   pdf.text(firstLine, l.marginX + labelW, cur.y);
   cur.y += l.lhBody;
 
@@ -397,7 +397,7 @@ function drawBullet(cur: Cursor, text: string) {
   const bx        = l.marginX + l.bulletIndent;
   const textW     = cw(l) - l.bulletIndent - pdf.getTextWidth(bullet);
 
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont("times", "normal");
   pdf.setFontSize(l.fsBody);
   const cleanText = plain(text);
   const lines     = pdf.splitTextToSize(cleanText, textW) as string[];
@@ -420,7 +420,7 @@ function drawInlineBold(cur: Cursor, text: string, startX: number) {
   const { pdf, l } = cur;
   // Check if the original text had **bold** — if not, just draw plain
   // (We already stripped bold for wrapping; here we just draw plain)
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont("times", "normal");
   pdf.setFontSize(l.fsBody);
   pdf.setTextColor(0, 0, 0);
   pdf.text(text, startX, cur.y);
@@ -446,14 +446,14 @@ export async function generateResumePdf(resumeData: ResumeData): Promise<void> {
   const { explicitCerts, certsFromAch, nonCertAch } = splitCerts(resumeData);
 
   // ── NAME ──────────────────────────────────────────────────────────────────
-  pdf.setFont("helvetica", "bold");
+  pdf.setFont("times", "bold");
   pdf.setFontSize(l.fsName);
   pdf.setTextColor(0, 0, 0);
   pdf.text((pi.fullName || "YOUR NAME").toUpperCase(), PAGE_W / 2, cur.y, { align: "center" });
   cur.y += l.lhName;
 
   // ── CONTACT BAR (with icons) ──────────────────────────────────────────────
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont("times", "normal");
   pdf.setFontSize(l.fsContact);
   pdf.setTextColor(30, 30, 30);
 
@@ -515,7 +515,7 @@ export async function generateResumePdf(resumeData: ResumeData): Promise<void> {
         } catch { /* icon failed — skip silently */ }
       }
       // Draw text
-      pdf.setFont("helvetica", "normal");
+      pdf.setFont("times", "normal");
       pdf.setFontSize(l.fsContact);
       pdf.setTextColor(30, 30, 30);
       pdf.text(item.text, cx + ICON_MM + ICON_GAP, rowY);
@@ -534,7 +534,7 @@ export async function generateResumePdf(resumeData: ResumeData): Promise<void> {
   // ── SUMMARY ───────────────────────────────────────────────────────────────
   if (summary?.trim()) {
     drawSectionHead(cur, "PROFESSIONAL SUMMARY");
-    pdf.setFont("helvetica", "normal");
+    pdf.setFont("times", "normal");
     pdf.setFontSize(l.fsBody);
     pdf.setTextColor(0, 0, 0);
     const lines = pdf.splitTextToSize(plain(summary), cw(l)) as string[];
@@ -554,12 +554,12 @@ export async function generateResumePdf(resumeData: ResumeData): Promise<void> {
       drawTwoCol(cur, edu.institution, dateStr, true, l.fsBody);
       // Degree row
       cur.need(l.lhSmall);
-      pdf.setFont("helvetica", "italic");
+      pdf.setFont("times", "italic");
       pdf.setFontSize(l.fsSmall);
       pdf.setTextColor(70, 70, 70);
       pdf.text(edu.degree, l.marginX, cur.y);
       if (edu.gpa) {
-        pdf.setFont("helvetica", "normal");
+        pdf.setFont("times", "normal");
         pdf.text(edu.gpa, PAGE_W - l.marginX, cur.y, { align: "right" });
       }
       cur.y += l.lhSmall;
@@ -586,12 +586,12 @@ export async function generateResumePdf(resumeData: ResumeData): Promise<void> {
       drawTwoCol(cur, exp.company, dateStr, true, l.fsBody);
       // Role + location
       cur.need(l.lhSmall);
-      pdf.setFont("helvetica", "italic");
+      pdf.setFont("times", "italic");
       pdf.setFontSize(l.fsSmall);
       pdf.setTextColor(70, 70, 70);
       pdf.text(exp.role, l.marginX, cur.y);
       if (exp.location) {
-        pdf.setFont("helvetica", "normal");
+        pdf.setFont("times", "normal");
         pdf.text(exp.location, PAGE_W - l.marginX, cur.y, { align: "right" });
       }
       cur.y += l.lhSmall + 1;
@@ -606,7 +606,7 @@ export async function generateResumePdf(resumeData: ResumeData): Promise<void> {
     drawSectionHead(cur, "PROJECTS");
     projects.forEach((proj, i) => {
       cur.need(l.lhBody + l.lhBody);
-      pdf.setFont("helvetica", "bold");
+      pdf.setFont("times", "bold");
       pdf.setFontSize(l.fsBody);
       pdf.setTextColor(0, 0, 0);
       pdf.text(proj.title, l.marginX, cur.y);
@@ -616,14 +616,14 @@ export async function generateResumePdf(resumeData: ResumeData): Promise<void> {
         const { pdf: p, l: ly } = cur;
         const label = "Tech Stack: ";
         const value = proj.techStack;
-        p.setFont("helvetica", "bold");
+        p.setFont("times", "bold");
         p.setFontSize(ly.fsBody);
         const lw = p.getTextWidth(label);
         const bullet = "\u2022 ";
         const bx = ly.marginX + ly.bulletIndent;
         p.text(bullet, ly.marginX + ly.bulletIndent - p.getTextWidth(bullet), cur.y);
         p.text(label, bx, cur.y);
-        p.setFont("helvetica", "normal");
+        p.setFont("times", "normal");
         const tsLines = p.splitTextToSize(value, cw(ly) - ly.bulletIndent - lw) as string[];
         p.text(tsLines[0] || "", bx + lw, cur.y);
         cur.y += ly.lhBody;
@@ -659,7 +659,7 @@ export async function generateResumePdf(resumeData: ResumeData): Promise<void> {
     nonCertAch.forEach((ach, i) => {
       drawTwoCol(cur, ach.title, ach.date || "", true, l.fsBody);
       if (ach.description) {
-        pdf.setFont("helvetica", "normal");
+        pdf.setFont("times", "normal");
         pdf.setFontSize(l.fsSmall);
         pdf.setTextColor(70, 70, 70);
         const dlines = pdf.splitTextToSize(plain(ach.description), cw(l)) as string[];

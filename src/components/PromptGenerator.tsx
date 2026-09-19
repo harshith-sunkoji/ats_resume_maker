@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ResumeData } from "@/types/resume";
-import { Sparkles, Wand2, Loader2, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
+import { Sparkles, Wand2, Loader2, AlertCircle, CheckCircle2, ArrowRight, BarChart2 } from "lucide-react";
 
 interface PromptGeneratorProps {
   resumeData: ResumeData;
@@ -24,6 +24,8 @@ export const PromptGenerator: React.FC<PromptGeneratorProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [isEnhancingMetrics, setIsEnhancingMetrics] = useState(false);
+  const [metricsSuccessMsg, setMetricsSuccessMsg] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     if (!promptText.trim()) {
@@ -59,6 +61,35 @@ export const PromptGenerator: React.FC<PromptGeneratorProps> = ({
       setErrorMsg(err.message || "An error occurred while generating resume.");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleUseMetrics = async () => {
+    setErrorMsg(null);
+    setMetricsSuccessMsg(null);
+    setIsEnhancingMetrics(true);
+
+    try {
+      const response = await fetch("/api/use-metrics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeData }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to enhance resume with metrics.");
+      }
+
+      onUpdateResumeData(data.updatedResumeData);
+      setMetricsSuccessMsg("📊 Resume bullets enhanced with quantifiable metrics!");
+      setTimeout(() => setMetricsSuccessMsg(null), 6000);
+    } catch (err: any) {
+      console.error("Metrics enhance error:", err);
+      setErrorMsg(err.message || "An error occurred while enhancing with metrics.");
+    } finally {
+      setIsEnhancingMetrics(false);
     }
   };
 
@@ -121,11 +152,45 @@ export const PromptGenerator: React.FC<PromptGeneratorProps> = ({
         </div>
       </div>
 
+      {/* Enhance with Metrics Quick-Action */}
+      <div className="pt-1 border-t border-zinc-100 dark:border-zinc-800">
+        <button
+          onClick={handleUseMetrics}
+          disabled={isEnhancingMetrics || isGenerating}
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 hover:from-violet-700 hover:via-fuchsia-700 hover:to-pink-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 cursor-pointer"
+          title="AI rewrites every bullet point with quantifiable metrics (%, numbers, time saved)"
+        >
+          {isEnhancingMetrics ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Enhancing with Metrics...</span>
+            </>
+          ) : (
+            <>
+              <BarChart2 className="w-3.5 h-3.5 text-fuchsia-200" />
+              <span>⚡ Enhance Bullets with Metrics</span>
+              <Sparkles className="w-3 h-3 text-amber-300" />
+            </>
+          )}
+        </button>
+        <p className="text-[10.5px] text-zinc-400 dark:text-zinc-500 text-center mt-1.5">
+          AI rewrites all bullets &amp; summary with real numbers — %, time saved, user counts &amp; more
+        </p>
+      </div>
+
       {/* Error Message */}
       {errorMsg && (
         <div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 rounded-lg text-xs border border-red-200 dark:border-red-900">
           <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
           <span>{errorMsg}</span>
+        </div>
+      )}
+
+      {/* Metrics Success Message */}
+      {metricsSuccessMsg && (
+        <div className="flex items-center gap-2 p-2.5 bg-violet-50 dark:bg-violet-950/60 text-violet-800 dark:text-violet-300 rounded-lg text-xs border border-violet-200 dark:border-violet-800 animate-in fade-in">
+          <BarChart2 className="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" />
+          <span className="font-semibold">{metricsSuccessMsg}</span>
         </div>
       )}
 
