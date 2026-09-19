@@ -12,14 +12,44 @@ Follow these rules carefully:
 1. Parse the user's prompt (e.g. "Tailor for Senior QA Engineer role", "Add Flutter and Playwright skills", "Rewrite summary to highlight cloud architecture", "Add metrics to work experience").
 2. Update the candidate's Resume JSON according to the prompt while keeping standard ATS best practices:
    - personalInfo: Preserve candidate name, email, phone, location, linkedin, github unless explicitly requested to change.
-   - summary: Update 2-3 sentence professional summary to reflect the target role/skills specified in prompt.
+   - summary: Write a concise 2-sentence professional summary. Must be under 30 words per sentence.
    - skillCategories: Add, update, or reorganize skill categories to include technologies requested.
-   - experiences: Rewrite or append bullet points to incorporate relevant tools, methodologies, and quantitative metrics (% or $ or speed gains).
+   - experiences: Rewrite or append bullet points to incorporate relevant tools, methodologies, and quantitative metrics (% or $ or speed gains). Each bullet must be under 25 words.
    - projects: Update project titles, tech stacks, and bullet highlights to align with the prompt.
    - education, certifications, achievements: Preserve or update if specified.
 3. Ensure high ATS keyword density, strong action verbs (e.g. Engineered, Architected, Developed, Optimized, Integrated), and clean categorization.
 4. Output ONLY valid JSON matching the Resume JSON structure with NO markdown code block wrappers (no \`\`\`json).
+
+CRITICAL CONTENT RULES — violating these causes automatic ATS rejection:
+A. NO personal pronouns anywhere: never use I, me, my, we, our, myself. Write in third-person implicit style (e.g. "Developed..." not "I developed...").
+B. NO AI buzzwords or clichés: never use highly effective, proven track record, adept at, expertise in, passionate about, results-driven, dynamic, innovative, leverage, seamless, robust, cutting-edge, synergy, game-changer, spearheaded, revolutionized, transformative, detail-oriented, team player, go-getter, think outside the box, value-added, proactive.
+C. NO long or complex sentences: every sentence in summary and every bullet point must be clear, direct, and under 25 words. Split long thoughts into two bullets instead.
+D. Use natural human language. Write as a professional would speak, not as an AI would generate.
+E. DATE FORMATTING — always use ATS-preferred date formats for startDate and endDate fields:
+   - Preferred: "Mar 2019", "March 2019", "03/2019", or "03/19"
+   - For current positions: use "Present" (not "Till Date", "Current", "Ongoing", "Now")
+   - Never use dots after month abbreviations: "Sep 2023" not "Sep. 2023"
+   - Never use only a year when a month is known: "Sep 2023" not "2023"
+   - Ensure startDate always comes before endDate chronologically.
 `;
+
+
+// ─── Date normalizer ────────────────────────────────────────────────────────
+// Converts messy date strings into ATS-preferred "Mon YYYY" or "Present".
+function normalizeDate(raw: string | undefined): string {
+  if (!raw) return "";
+  let d = raw.trim();
+
+  // Normalise synonyms for "current position"
+  if (/^(present|current|ongoing|now|till\s*date|to\s*date|today)$/i.test(d)) {
+    return "Present";
+  }
+
+  // Remove trailing dots from 3-letter month abbreviations: "Sep. 2023" → "Sep 2023"
+  d = d.replace(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\./gi, "$1");
+
+  return d;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -135,6 +165,26 @@ Please modify the Resume JSON to satisfy the user's instruction and output the u
     updatedResumeData.skillCategories = (updatedResumeData.skillCategories || []).map((sk, idx) => ({
       ...sk,
       id: sk?.id || `skill-${idx + 1}`,
+    }));
+
+    // Normalise all date fields to ATS-preferred format
+    updatedResumeData.experiences = updatedResumeData.experiences.map(exp => ({
+      ...exp,
+      startDate: normalizeDate(exp.startDate),
+      endDate:   normalizeDate(exp.endDate),
+    }));
+    updatedResumeData.education = (updatedResumeData.education || []).map(edu => ({
+      ...edu,
+      startDate: normalizeDate(edu.startDate),
+      endDate:   normalizeDate(edu.endDate),
+    }));
+    updatedResumeData.certifications = (updatedResumeData.certifications || []).map(cert => ({
+      ...cert,
+      date: normalizeDate(cert.date),
+    }));
+    updatedResumeData.achievements = (updatedResumeData.achievements || []).map(ach => ({
+      ...ach,
+      date: normalizeDate(ach.date),
     }));
 
     return NextResponse.json({
