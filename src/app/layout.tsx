@@ -13,8 +13,67 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ATS Resume Maker",
-  description: "AI-Powered ATS Resume Builder & Job Matcher",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://resumint.com"
+  ),
+  title: {
+    default: "Resumint | AI Powered ATS Resume Builder & Job Matcher",
+    template: "%s | Resumint",
+  },
+  description:
+    "Build high-scoring ATS-friendly resumes, analyze job descriptions, get keyword recommendations, and export instant ATS resumes with Resumint.",
+  keywords: [
+    "Resumint",
+    "ATS Resume Builder",
+    "AI Resume Maker",
+    "Job Description Matcher",
+    "ATS Score Checker",
+    "Resume Optimizer",
+    "AI Resume Generator",
+    "Tech Resume Template",
+  ],
+  authors: [{ name: "Resumint Team" }],
+  creator: "Resumint",
+  publisher: "Resumint",
+  icons: {
+    icon: "/website_logo.png",
+    shortcut: "/website_logo.png",
+    apple: "/website_logo.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "Resumint",
+    title: "Resumint | AI Powered ATS Resume Builder & Job Matcher",
+    description:
+      "Create top-tier ATS friendly resumes tailored to any job description. AI keyword optimization, score analysis, and instant PDF download.",
+    images: [
+      {
+        url: "/website_logo.png",
+        width: 1200,
+        height: 630,
+        alt: "Resumint Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Resumint | AI Powered ATS Resume Builder",
+    description:
+      "Build ATS-friendly resumes with AI job match scoring and keyword optimization.",
+    images: ["/website_logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export const viewport: Viewport = {
@@ -29,6 +88,22 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Resumint",
+    description:
+      "AI-Powered ATS Resume Builder, Job Description Analyzer & Resume Match Score Optimizer",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "All",
+    image: "/website_logo.png",
+    offers: {
+      "@type": "Offer",
+      price: "9.00",
+      priceCurrency: "INR",
+    },
+  };
+
   return (
     <html
       lang="en"
@@ -39,9 +114,14 @@ export default function RootLayout({
           name="viewport"
           content="width=1280, initial-scale=0.35, maximum-scale=3.0, user-scalable=yes"
         />
+        <link rel="icon" href="/website_logo.png" type="image/png" sizes="any" />
+        <link rel="apple-touch-icon" href="/website_logo.png" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body className="min-h-full flex flex-col min-w-[1280px]">{children}</body>
     </html>
   );
 }
-

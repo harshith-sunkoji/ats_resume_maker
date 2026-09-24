@@ -22,6 +22,7 @@ import {
   ExternalLink,
   Undo2,
   Redo2,
+  Loader2,
 } from "lucide-react";
 
 export default function Home() {
@@ -132,16 +133,20 @@ export default function Home() {
         <div className="w-full max-w-[1920px] mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Logo & Info */}
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl text-white shadow-md">
-              <FileCheck className="w-5 h-5" />
+            <div className="relative flex items-center justify-center p-1 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden h-10 w-10">
+              <img
+                src="/website_logo.png"
+                alt="Resumint Logo"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-                  ATS Resume Maker
+                <h1 className="text-base font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">
+                  Resumint
                 </h1>
-                <span className="text-[10px] font-bold uppercase tracking-wide bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
-                  AI
+                <span className="text-[10px] font-bold uppercase tracking-wide bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-2 py-0.5 rounded-full shadow-xs">
+                  PRO
                 </span>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">

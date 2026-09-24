@@ -93,21 +93,45 @@ export default function PreviewPage() {
     }
   }, []);
 
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
   // ============================================================
-  // DOWNLOAD PDF  (pure jsPDF text-based — no screenshot/PNG)
+  // DOWNLOAD PDF WITH RAZORPAY PAYMENT (₹9)
   // ============================================================
 
   const handleDownloadPdf = async () => {
-    if (isGeneratingPdf) return;
-    setIsGeneratingPdf(true);
+    if (isGeneratingPdf || isProcessingPayment) return;
+    setIsProcessingPayment(true);
+
     try {
-      const { generateResumePdf } = await import("@/utils/generateResumePdf");
-      await generateResumePdf(resumeData);
-    } catch (error) {
-      console.error("Failed to generate ATS Resume PDF:", error);
-      window.alert("PDF generation failed. Please try again.");
-    } finally {
-      setIsGeneratingPdf(false);
+      const { processResumePayment } = await import("@/utils/razorpay");
+
+      await processResumePayment({
+        userEmail: resumeData.personalInfo?.email,
+        userName: resumeData.personalInfo?.fullName,
+        userPhone: resumeData.personalInfo?.phone,
+        onSuccess: async (paymentId: string) => {
+          setIsProcessingPayment(false);
+          setIsGeneratingPdf(true);
+          try {
+            const { generateResumePdf } = await import("@/utils/generateResumePdf");
+            await generateResumePdf(resumeData);
+          } catch (error) {
+            console.error("Failed to generate ATS Resume PDF after payment:", error);
+            window.alert("Payment successful (" + paymentId + "), but PDF generation failed. Please try downloading again.");
+          } finally {
+            setIsGeneratingPdf(false);
+          }
+        },
+        onError: (errorMsg: string) => {
+          setIsProcessingPayment(false);
+          console.error("Payment failed or cancelled:", errorMsg);
+        },
+      });
+    } catch (error: any) {
+      console.error("Failed to initiate payment process:", error);
+      window.alert("Could not start payment process: " + (error.message || "Unknown error"));
+      setIsProcessingPayment(false);
     }
   };
 
@@ -199,12 +223,16 @@ export default function PreviewPage() {
 
             <div className="flex items-center gap-2">
 
-              <div className="p-1.5 bg-blue-600 rounded-lg text-white">
-                <FileCheck className="w-4 h-4" />
+              <div className="relative flex items-center justify-center p-1 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-xs h-7 w-7 overflow-hidden">
+                <img
+                  src="/website_logo.png"
+                  alt="Resumint Logo"
+                  className="h-full w-full object-contain"
+                />
               </div>
 
               <h1 className="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-                ATS Resume Preview & Download
+                Resumint - Document Preview
               </h1>
 
             </div>
@@ -274,7 +302,7 @@ export default function PreviewPage() {
                 handleDownloadPdf
               }
               disabled={
-                isGeneratingPdf
+                isGeneratingPdf || isProcessingPayment
               }
               type="button"
               className="
@@ -284,15 +312,14 @@ export default function PreviewPage() {
                 justify-center
                 gap-2
 
-                w-[222px]
                 h-[38px]
 
                 bg-gradient-to-r
-                from-blue-600
-                to-indigo-600
+                from-emerald-600
+                to-teal-600
 
-                hover:from-blue-700
-                hover:to-indigo-700
+                hover:from-emerald-700
+                hover:to-teal-700
 
                 disabled:opacity-75
 
@@ -306,14 +333,23 @@ export default function PreviewPage() {
                 rounded-xl
                 shadow-md
 
-                transition-colors
+                transition-all
+                active:scale-95
 
                 cursor-pointer
                 disabled:cursor-wait
               "
             >
 
-              {isGeneratingPdf ? (
+              {isProcessingPayment ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+
+                  <span>
+                    Processing Payment...
+                  </span>
+                </>
+              ) : isGeneratingPdf ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
 
@@ -326,7 +362,10 @@ export default function PreviewPage() {
                   <Download className="w-4 h-4" />
 
                   <span>
-                    Download ATS Resume PDF
+                    Pay ₹9 & Download Resume
+                  </span>
+                  <span className="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-white/20 rounded-md">
+                    ₹9
                   </span>
                 </>
               )}
