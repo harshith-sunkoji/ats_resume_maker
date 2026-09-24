@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://resumint.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ats-resume-maker-one.vercel.app";
 
   return [
     {

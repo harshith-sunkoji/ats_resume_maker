@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://resumint.com"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://ats-resume-maker-one.vercel.app"
   ),
   title: {
     default: "Resumint | AI Powered ATS Resume Builder & Job Matcher",
