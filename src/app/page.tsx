@@ -9,6 +9,7 @@ import { PdfUploader } from "@/components/PdfUploader";
 import { JdAnalyzer } from "@/components/JdAnalyzer";
 import { AtsScoreCard } from "@/components/AtsScoreCard";
 import { PromptGenerator } from "@/components/PromptGenerator";
+import { MarqueeNotice } from "@/components/MarqueeNotice";
 import {
   Download,
   Eye,
@@ -266,6 +267,7 @@ export default function Home() {
           </div>
         </div>
       </header>
+      <MarqueeNotice />
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 w-full max-w-[1920px] mx-auto p-4 md:p-6 space-y-6">

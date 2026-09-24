@@ -58,7 +58,7 @@ export const processResumePayment = async ({
       amount: data.amount,
       currency: data.currency || "INR",
       name: "Resumint.yo",
-      description: "Resumint.yo - ATS Resume Download (₹9)",
+      description: "Resumint.yo - ATS Resume Download (₹9 Launch Offer)",
       image: "/website_logo.png",
       order_id: orderId,
       handler: async function (paymentResponse: {

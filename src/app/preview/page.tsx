@@ -11,6 +11,7 @@ import {
 import { ResumePreview } from "@/components/ResumePreview";
 import { JdScoreCard } from "@/components/JdScoreCard";
 import { JdAnalysisResult } from "@/components/JdAnalyzer";
+import { MarqueeNotice } from "@/components/MarqueeNotice";
 
 import {
   Download,
@@ -310,16 +311,17 @@ export default function PreviewPage() {
                 flex
                 items-center
                 justify-center
-                gap-2
+                gap-2.5
 
-                h-[38px]
+                h-[42px]
 
                 bg-gradient-to-r
                 from-emerald-600
-                to-teal-600
+                via-teal-600
+                to-emerald-700
 
                 hover:from-emerald-700
-                hover:to-teal-700
+                hover:to-teal-800
 
                 disabled:opacity-75
 
@@ -331,7 +333,8 @@ export default function PreviewPage() {
                 py-2
 
                 rounded-xl
-                shadow-md
+                shadow-lg
+                shadow-emerald-500/20
 
                 transition-all
                 active:scale-95
@@ -361,11 +364,21 @@ export default function PreviewPage() {
                 <>
                   <Download className="w-4 h-4" />
 
-                  <span>
-                    Pay ₹9 & Download Resume
+                  <span className="font-bold">
+                    Download Resume
                   </span>
-                  <span className="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-white/20 rounded-md">
-                    ₹9
+
+                  <div className="flex items-center gap-1.5 ml-1 bg-black/25 dark:bg-black/40 px-2 py-1 rounded-lg border border-white/10">
+                    <span className="line-through text-white/60 text-[11px]">
+                      ₹49
+                    </span>
+                    <span className="font-extrabold text-xs text-yellow-300">
+                      ₹9
+                    </span>
+                  </div>
+
+                  <span className="px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider bg-amber-400 text-amber-950 rounded-full shadow-xs">
+                    Launch Offer
                   </span>
                 </>
               )}
@@ -377,6 +390,8 @@ export default function PreviewPage() {
         </div>
 
       </header>
+
+      <MarqueeNotice />
 
       {/* ======================================================
           MAIN
