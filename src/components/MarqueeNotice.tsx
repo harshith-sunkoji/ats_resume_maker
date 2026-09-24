@@ -32,9 +32,19 @@ export const MarqueeNotice: React.FC = () => {
               resumeint.yo@gmail.com
             </a>
           </span>
-          <span className="inline-flex items-center gap-1.5 mx-8 text-zinc-300">
+          {/* <span className="inline-flex items-center gap-1.5 mx-8 text-zinc-300">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Launch Day Offer — Get your ATS Optimized Resume PDF for only ₹9</span>
+          </span> */}
+          <span className="inline-flex items-center gap-1.5 mx-8">
+            <Mail className="w-3.5 h-3.5 text-blue-400" />
+            <span>For any queries contact:</span>
+            <a
+              href="mailto:resumeint.yo@gmail.com"
+              className="font-bold text-yellow-300 underline underline-offset-2 hover:text-yellow-200 transition-colors"
+            >
+              resumeint.yo@gmail.com
+            </a>
           </span>
           <span className="inline-flex items-center gap-1.5 mx-8">
             <Mail className="w-3.5 h-3.5 text-blue-400" />
@@ -46,6 +56,7 @@ export const MarqueeNotice: React.FC = () => {
               resumeint.yo@gmail.com
             </a>
           </span>
+          
         </div>
       </div>
     </div>
