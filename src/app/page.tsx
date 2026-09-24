@@ -136,14 +136,14 @@ export default function Home() {
             <div className="relative flex items-center justify-center p-1 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden h-10 w-10">
               <img
                 src="/website_logo.png"
-                alt="Resumint Logo"
+                alt="Resumint.yo Logo"
                 className="h-full w-full object-contain"
               />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">
-                  Resumint
+                  Resumint.yo
                 </h1>
                 <span className="text-[10px] font-bold uppercase tracking-wide bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-2 py-0.5 rounded-full shadow-xs">
                   PRO

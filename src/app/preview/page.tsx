@@ -226,13 +226,13 @@ export default function PreviewPage() {
               <div className="relative flex items-center justify-center p-1 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-xs h-7 w-7 overflow-hidden">
                 <img
                   src="/website_logo.png"
-                  alt="Resumint Logo"
+                  alt="Resumint.yo Logo"
                   className="h-full w-full object-contain"
                 />
               </div>
 
               <h1 className="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-                Resumint - Document Preview
+                Resumint.yo - Document Preview
               </h1>
 
             </div>

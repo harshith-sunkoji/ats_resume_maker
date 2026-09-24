@@ -18,12 +18,13 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL || "https://ats-resume-maker-one.vercel.app"
   ),
   title: {
-    default: "Resumint | AI Powered ATS Resume Builder & Job Matcher",
-    template: "%s | Resumint",
+    default: "Resumint.yo | AI Powered ATS Resume Builder & Job Matcher",
+    template: "%s | Resumint.yo",
   },
   description:
-    "Build high-scoring ATS-friendly resumes, analyze job descriptions, get keyword recommendations, and export instant ATS resumes with Resumint.",
+    "Build high-scoring ATS-friendly resumes, analyze job descriptions, get keyword recommendations, and export instant ATS resumes with Resumint.yo.",
   keywords: [
+    "Resumint.yo",
     "Resumint",
     "ATS Resume Builder",
     "AI Resume Maker",
@@ -33,9 +34,9 @@ export const metadata: Metadata = {
     "AI Resume Generator",
     "Tech Resume Template",
   ],
-  authors: [{ name: "Resumint Team" }],
-  creator: "Resumint",
-  publisher: "Resumint",
+  authors: [{ name: "Resumint.yo Team" }],
+  creator: "Resumint.yo",
+  publisher: "Resumint.yo",
   icons: {
     icon: "/website_logo.png",
     shortcut: "/website_logo.png",
@@ -44,8 +45,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "Resumint",
-    title: "Resumint | AI Powered ATS Resume Builder & Job Matcher",
+    siteName: "Resumint.yo",
+    title: "Resumint.yo | AI Powered ATS Resume Builder & Job Matcher",
     description:
       "Create top-tier ATS friendly resumes tailored to any job description. AI keyword optimization, score analysis, and instant PDF download.",
     images: [
@@ -53,13 +54,13 @@ export const metadata: Metadata = {
         url: "/website_logo.png",
         width: 1200,
         height: 630,
-        alt: "Resumint Logo",
+        alt: "Resumint.yo Logo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Resumint | AI Powered ATS Resume Builder",
+    title: "Resumint.yo | AI Powered ATS Resume Builder",
     description:
       "Build ATS-friendly resumes with AI job match scoring and keyword optimization.",
     images: ["/website_logo.png"],
@@ -92,7 +93,7 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "Resumint",
+    name: "Resumint.yo",
     description:
       "AI-Powered ATS Resume Builder, Job Description Analyzer & Resume Match Score Optimizer",
     applicationCategory: "BusinessApplication",

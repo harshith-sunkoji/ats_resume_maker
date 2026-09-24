@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       currency: "INR",
       receipt: `receipt_resume_${Date.now()}`,
       notes: {
-        item: "Resumint - ATS Resume Download",
+        item: "Resumint.yo - ATS Resume Download",
         price: `${amount / 100} INR`,
       },
     };
