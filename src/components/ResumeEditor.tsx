@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ResumeData, Experience, Project, Achievement, Education, SkillCategory, Certification } from "@/types/resume";
+import { ResumeData, Experience, Project, Achievement, Education, SkillCategory, Certification, isDemoResume } from "@/types/resume";
 import { Plus, Trash2, User, Briefcase, FolderGit2, Trophy, GraduationCap, Wrench, Award, FileText } from "lucide-react";
 
 interface ResumeEditorProps {
@@ -207,9 +207,10 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
   return (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden flex flex-col h-full">
       {/* Editor Navigation Tabs */}
-      <div className="flex border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 overflow-x-auto">
-        <button
-          onClick={() => setActiveTab("personal")}
+      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 overflow-x-auto">
+        <div className="flex items-center">
+          <button
+            onClick={() => setActiveTab("personal")}
           className={`flex items-center gap-1.5 px-3.5 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
             activeTab === "personal"
               ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-white dark:bg-zinc-900"
@@ -291,6 +292,16 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ data, onChange }) =>
           <Trophy className="w-3.5 h-3.5" />
           7. Achievements ({(data.achievements || []).length})
         </button>
+        </div>
+
+        {isDemoResume(data) && (
+          <div className="px-3 shrink-0">
+            <span className="bg-red-600 text-white font-black text-[10px] uppercase tracking-widest px-2 py-0.5 rounded shadow-xs flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+              DEMO
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Tab Panels */}

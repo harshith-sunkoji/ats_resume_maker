@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import { ResumeData } from "@/types/resume";
+import { ResumeData, isDemoResume } from "@/types/resume";
 
 interface ResumePreviewProps {
   data: ResumeData;
   scale?: number;
 }
+
 
 // Crisp Data-URI img icons for GitHub, LinkedIn, Mail, Phone
 const GithubIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
@@ -69,7 +70,7 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
 
   // Separate certifications and non-certification achievements if stored together
   const explicitCerts = certifications && certifications.length > 0 ? certifications : [];
-  
+
   const certsFromAchievements = explicitCerts.length === 0 && achievements
     ? achievements.filter((ach) => /certif/i.test(ach.title) || /certif/i.test(ach.description))
     : [];
@@ -81,12 +82,21 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
   return (
     <div
       id="ats-resume-document"
-      className="bg-white text-black font-sans w-[210mm] min-h-[297mm] p-[10mm] md:p-[12mm] shadow-xl border border-gray-200 mx-auto transition-transform origin-top select-text"
+      className="bg-white text-black font-sans w-[210mm] min-h-[297mm] p-[10mm] md:p-[12mm] shadow-xl border border-gray-200 mx-auto transition-transform origin-top select-text relative"
       style={{
         transform: scale !== 1 ? `scale(${scale})` : undefined,
         fontFamily: "'Inter', Arial, Helvetica, sans-serif",
       }}
     >
+      {/* FLUTTER-STYLE RED DIAGONAL DEMO BANNER */}
+      {isDemoResume(data) && (
+        <div className="absolute top-0 right-0 w-28 h-28 overflow-hidden pointer-events-none z-20 no-print">
+          <div className="absolute top-4 -right-8 w-32 bg-red-600 text-white font-black text-[10px] uppercase tracking-widest text-center shadow-md rotate-45 py-0.5 border-y border-red-400/30">
+            DEMO
+          </div>
+        </div>
+      )}
+
       {/* 1. HEADER / CONTACT INFORMATION */}
       <div className="resume-header text-center mb-3">
         <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-black uppercase mb-1">
@@ -217,13 +227,13 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
             {skillCategories.map((sk) => {
               const deduplicatedSkills = sk.skills
                 ? Array.from(
-                    new Set(
-                      sk.skills
-                        .split(/[,;]/)
-                        .map((s) => s.trim())
-                        .filter(Boolean)
-                    )
-                  ).join(", ")
+                  new Set(
+                    sk.skills
+                      .split(/[,;]/)
+                      .map((s) => s.trim())
+                      .filter(Boolean)
+                  )
+                ).join(", ")
                 : "";
               return (
                 <div key={sk.id} className="flex flex-wrap items-baseline gap-1">

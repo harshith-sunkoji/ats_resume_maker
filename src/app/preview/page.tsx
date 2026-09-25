@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   ResumeData,
   DEFAULT_RESUME_DATA,
+  isDemoResume,
 } from "@/types/resume";
 
 import { ResumePreview } from "@/components/ResumePreview";
@@ -405,13 +406,18 @@ export default function PreviewPage() {
 
         <div className="w-full flex items-center justify-between mb-4 text-xs text-zinc-500 dark:text-zinc-400 no-print px-2">
 
-          <span className="font-semibold flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
-
-            <Sparkles className="w-4 h-4 text-blue-500" />
-
-            Full A4 Resume Document Preview
-
-          </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-semibold flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
+              <Sparkles className="w-4 h-4 text-blue-500" />
+              Full A4 Resume Document Preview
+            </span>
+            {isDemoResume(resumeData) && (
+              <span className="bg-red-600 text-white font-black text-[10px] uppercase tracking-widest px-2 py-0.5 rounded shadow-xs flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                DEMO
+              </span>
+            )}
+          </div>
 
           <span className="hidden sm:inline">
             100% Single Page ATS Standard • A4 Dimensions (210mm × 297mm)

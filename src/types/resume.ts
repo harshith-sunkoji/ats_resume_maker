@@ -54,6 +54,7 @@ export interface SkillCategory {
 }
 
 export interface ResumeData {
+  isDemo?: boolean;
   personalInfo: PersonalInfo;
   summary?: string;
   skillCategories: SkillCategory[];
@@ -65,6 +66,7 @@ export interface ResumeData {
 }
 
 export const DEFAULT_RESUME_DATA: ResumeData = {
+  isDemo: true,
   personalInfo: {
     fullName: "ALEX MORGAN",
     github: "github.com/alexmorgan",
@@ -159,4 +161,14 @@ export const DEFAULT_RESUME_DATA: ResumeData = {
     },
   ],
 };
+
+export const isDemoResume = (data?: ResumeData | null): boolean => {
+  if (!data) return false;
+  if (data.isDemo === true) return true;
+  return (
+    data.personalInfo?.fullName?.trim().toUpperCase() === "ALEX MORGAN" ||
+    data.personalInfo?.email === "alex.morgan@example.com"
+  );
+};
+
 
