@@ -103,6 +103,9 @@ export default function PreviewPage() {
 
   const handleDownloadPdf = async () => {
     if (isGeneratingPdf || isProcessingPayment) return;
+
+    /* 
+    // PAYMENT GATEWAY (RAZORPAY) COMMENTED OUT:
     setIsProcessingPayment(true);
 
     try {
@@ -134,6 +137,19 @@ export default function PreviewPage() {
       console.error("Failed to initiate payment process:", error);
       window.alert("Could not start payment process: " + (error.message || "Unknown error"));
       setIsProcessingPayment(false);
+    }
+    */
+
+    // Direct PDF Generation without payment gateway
+    setIsGeneratingPdf(true);
+    try {
+      const { generateResumePdf } = await import("@/utils/generateResumePdf");
+      await generateResumePdf(resumeData);
+    } catch (error) {
+      console.error("Failed to generate ATS Resume PDF:", error);
+      window.alert("PDF generation failed. Please try downloading again.");
+    } finally {
+      setIsGeneratingPdf(false);
     }
   };
 
@@ -369,6 +385,7 @@ export default function PreviewPage() {
                     Download Resume
                   </span>
 
+                  {/* Payment pricing badges commented out:
                   <div className="flex items-center gap-1.5 ml-1 bg-black/25 dark:bg-black/40 px-2 py-1 rounded-lg border border-white/10">
                     <span className="line-through text-white/60 text-[11px]">
                       ₹49
@@ -381,6 +398,7 @@ export default function PreviewPage() {
                   <span className="px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider bg-amber-400 text-amber-950 rounded-full shadow-xs">
                     Launch Offer
                   </span>
+                  */}
                 </>
               )}
 
