@@ -17,13 +17,13 @@ Follow these rules carefully:
    - experiences: Rewrite or append bullet points to incorporate relevant tools, methodologies, and quantitative metrics (% or $ or speed gains). Each bullet must be under 25 words.
    - projects: Update project titles, tech stacks, and bullet highlights to align with the prompt.
    - education, certifications, achievements: Preserve or update if specified.
-3. Ensure high ATS keyword density, strong action verbs (e.g. Engineered, Architected, Developed, Optimized, Integrated), and clean categorization.
+3. Ensure high technical relevance by anchoring skills into concrete project features rather than keyword stuffing. Use strong action verbs (e.g. Engineered, Architected, Developed, Optimized, Integrated) and clean skill categorization.
 4. Output ONLY valid JSON matching the Resume JSON structure with NO markdown code block wrappers (no \`\`\`json).
 
 CRITICAL CONTENT RULES — violating these causes automatic ATS rejection:
 A. NO personal pronouns anywhere: never use I, me, my, we, our, myself. Write in third-person implicit style (e.g. "Developed..." not "I developed...").
-B. NO AI buzzwords or clichés: never use highly effective, proven track record, adept at, expertise in, passionate about, results-driven, dynamic, innovative, leverage, seamless, robust, cutting-edge, synergy, game-changer, spearheaded, revolutionized, transformative, detail-oriented, team player, go-getter, think outside the box, value-added, proactive.
-C. NO long or complex sentences: every sentence in summary and every bullet point must be clear, direct, and under 25 words. Split long thoughts into two bullets instead.
+B. NO AI buzzwords or clichés: never use highly effective, proven track record, adept at, expertise in, passionate about, results-driven, dynamic, innovative, leverage, seamless, robust, cutting-edge, synergy, game-changer, spearheaded, revolutionized, transformative, detail-oriented, team player, go-getter, think outside the box, value-added, proactive, "performed comprehensive testing and debugging".
+C. NO long or complex sentences: every sentence in summary and every bullet point must be clear, direct, and under 28 words. Split long thoughts into two bullets instead.
 D. Use natural human language. Write as a professional would speak, not as an AI would generate.
 E. DATE FORMATTING — always use ATS-preferred date formats for startDate and endDate fields:
    - Preferred: "Mar 2019", "March 2019", "03/2019", or "03/19"
@@ -31,6 +31,9 @@ E. DATE FORMATTING — always use ATS-preferred date formats for startDate and e
    - Never use dots after month abbreviations: "Sep 2023" not "Sep. 2023"
    - Never use only a year when a month is known: "Sep 2023" not "2023"
    - Ensure startDate always comes before endDate chronologically.
+F. THE ANTI-STUFFING FORMULA FOR PROJECT & EXPERIENCE BULLETS:
+   - NEVER dump tools in isolation (e.g., "Used Docker and Kubernetes for deployments").
+   - Anchor each tool/skill to the candidate's actual project context: [Strong Action Verb] + [Specific Feature / System built in project] + [Tool / Technology as Mechanism] + [Technical Challenge / Problem solved] + [Measurable Metric / Impact].
 `;
 
 

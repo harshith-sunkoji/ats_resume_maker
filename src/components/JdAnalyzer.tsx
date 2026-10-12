@@ -460,6 +460,12 @@ export const JdAnalyzer: React.FC<JdAnalyzerProps> = ({
         summary: "Outstanding job alignment! All AI suggested optimization changes have been applied to your resume.",
       };
 
+      try {
+        localStorage.setItem("ats_ai_original_resume", JSON.stringify(resumeData));
+      } catch (e) {
+        console.error("Failed to store baseline resume for AI diff", e);
+      }
+
       onUpdateResumeData(updatedData);
       setAnalysis(updatedAnalysis);
 
@@ -469,7 +475,7 @@ export const JdAnalyzer: React.FC<JdAnalyzerProps> = ({
         console.error("Failed to save updated analysis to localStorage", e);
       }
 
-      setAppliedSuccessMsg("✨ All AI suggestions applied successfully to your resume! Job match score boosted.");
+      setAppliedSuccessMsg("✨ All AI suggestions applied successfully! AI changes are highlighted on the resume.");
       setTimeout(() => setAppliedSuccessMsg(null), 6000);
     } catch (err: any) {
       console.error("Error applying suggestions:", err);
@@ -498,6 +504,14 @@ export const JdAnalyzer: React.FC<JdAnalyzerProps> = ({
       suggestedChanges: remainingSuggestions,
     };
 
+    try {
+      if (!localStorage.getItem("ats_ai_original_resume")) {
+        localStorage.setItem("ats_ai_original_resume", JSON.stringify(resumeData));
+      }
+    } catch (e) {
+      console.error("Failed to store baseline resume for AI diff", e);
+    }
+
     onUpdateResumeData(updatedData);
     setAnalysis(updatedAnalysis);
 
@@ -507,7 +521,7 @@ export const JdAnalyzer: React.FC<JdAnalyzerProps> = ({
       console.error("Failed to save updated analysis", e);
     }
 
-    setAppliedSuccessMsg(`Applied suggestion: "${targetChange.title}"`);
+    setAppliedSuccessMsg(`Applied suggestion: "${targetChange.title}" (AI changes highlighted)`);
     setTimeout(() => setAppliedSuccessMsg(null), 4000);
   };
 

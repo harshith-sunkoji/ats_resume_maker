@@ -5,20 +5,39 @@ import { ResumeData } from "@/types/resume";
 export const maxDuration = 60; // Allow up to 60 seconds for AI processing
 
 const APPLY_SUGGESTIONS_SYSTEM_PROMPT = `
-You are an expert ATS Resume Optimizer and Senior Technical Recruiter.
+You are an expert ATS Resume Optimizer, Senior Technical Recruiter, and AI Screening Specialist.
 You will receive:
 1. A candidate's original Resume JSON object.
 2. A target Job Description.
-3. A list of missing keywords and AI suggested changes for achieving maximum ATS ranking.
+3. A list of missing keywords and AI suggested changes.
 
-Your task is to update the Resume JSON by applying ALL suggested changes and incorporating missing keywords into relevant sections (skillCategories, experiences, projects, achievements, etc.) to maximize the ATS match ranking.
+Your task is to update the candidate's Resume JSON to achieve maximum ATS match ranking and pass strict recruiter/AI screening WITHOUT keyword stuffing.
 
-CRITICAL RULES:
-- Return ONLY a valid JSON object matching the candidate's Resume JSON structure (personalInfo, summary, skillCategories, experiences, projects, education, certifications, achievements).
-- Do NOT alter candidate's fullName, email, phone, linkedin, github, dates, degrees, or company names.
-- Under skillCategories: Ensure missing keywords and suggested skills are added into appropriate existing categories (e.g. "Languages", "Database", "Frameworks / Libraries", "Tools & Cloud") or create a new category if needed.
-- Under experiences & projects: Seamlessly update/rewrite bullet points to naturally incorporate missing keywords, action verbs, and recommended metrics/technologies from the suggestions.
-- Ensure the result is valid JSON with NO markdown code block wrappers (no \`\`\`json).
+CRITICAL ANTI-STUFFING & SCREENING RULES:
+1. THE ANTI-STUFFING FORMULA FOR BULLET POINTS:
+   - NEVER dump standalone keywords, lists of tools, or artificial sentences like "Used Docker, Redis and CI/CD for deployments" or "Responsible for React, Node.js and GraphQL".
+   - Every updated or newly crafted bullet point in experiences and projects MUST follow this strict formula:
+     [Strong Action Verb] + [Specific System/Feature in candidate's project] + [Tool/Technology as Mechanism] + [Technical Problem/Challenge solved] + [Measurable Outcome/Impact]
+   - Anchor skills directly to the candidate's REAL existing project and work domains:
+     * E-Commerce: product catalog caching, checkout flow, payment webhooks, inventory sync, SSR performance.
+     * Mobile/Ride-Hailing: state management, real-time geolocation streaming, offline retry queues, frame rendering optimization.
+     * AI/Chatbots: webhook servers, prompt engineering, JSON schema enforcement, multi-turn conversational intent parsing.
+     * EV / IoT / Automotive: telemetry data feeds, battery monitoring UI, BLE/MQTT communication, diagnostic logging.
+
+2. BAN AI BUZZWORDS & GENERIC FLUFF:
+   - NEVER use generic clichés or empty phrases: "performed comprehensive testing and debugging", "optimized UI/UX", "streamlined processes", "collaborated with cross-functional teams", "results-driven", "innovative", "leveraged", "spearheaded", "cutting-edge".
+   - Replace every generic claim with the exact technical mechanism (e.g. replace "tested and debugged" with "profiled memory leaks using Dart DevTools and automated API regression tests in Postman").
+
+3. PRESERVE CANDIDATE TRUTH & METADATA:
+   - Do NOT alter candidate's fullName, email, phone, linkedin, github, dates, degrees, company names, or institution names.
+   - Do NOT invent fake companies or hallucinate completely unrelated degrees.
+
+4. SKILL CATEGORIES:
+   - Add missing technical skills into their logically appropriate category ("Languages", "Frameworks / Libraries", "Database", "Tools & Cloud", "Generative AI").
+
+5. FORMATTING & LENGTH:
+   - Keep each bullet point concise (between 18 to 28 words), high-impact, third-person implicit (no "I", "me", "my", "we").
+   - Output ONLY a valid JSON object matching the Resume JSON structure. NO markdown code block wrappers (no \`\`\`json).
 `;
 
 export async function POST(req: NextRequest) {

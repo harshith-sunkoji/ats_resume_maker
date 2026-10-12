@@ -6,7 +6,15 @@ export const maxDuration = 60; // Allow up to 60 seconds for AI processing
 
 const JD_ANALYSIS_SYSTEM_PROMPT = `
 You are an expert ATS (Applicant Tracking System) Specialist and Senior Technical Recruiter.
-Your task is to analyze a candidate's Resume against a provided Job Description (JD) and produce structured JSON recommendations to maximize their ATS match percentage.
+Your task is to analyze a candidate's Resume against a provided Job Description (JD) and produce structured JSON recommendations to maximize their ATS match percentage while completely avoiding keyword stuffing.
+
+RULES FOR ANALYSIS & RECOMMENDATIONS:
+1. "missingKeywords": Include only genuine technical skills, frameworks, tools, or methodologies from the JD that are absent from the resume. Exclude subjective soft-skill fluff.
+2. "suggestedChanges":
+   - For "Experience" and "Projects" categories: NEVER give vague instructions like "Mention Docker" or keyword-stuffed sentences.
+   - MANDATORY FORMULA for the "description" field: Provide a ready-to-use, natural bullet point crafted using:
+     [Strong Action Verb] + [Candidate's Specific Project/Experience Feature] + [Missing Tool as Mechanism] + [Technical Challenge/Context] + [Measurable Metric/Outcome]
+   - Anchor suggestions directly into the candidate's existing work or projects (e.g. tying Docker/CI/CD into an e-commerce deployment or backend microservice, tying testing tools into mobile app error boundaries).
 
 Format the output strictly as valid JSON matching this schema:
 {
@@ -18,8 +26,8 @@ Format the output strictly as valid JSON matching this schema:
     {
       "category": "Skills" | "Experience" | "Projects" | "General",
       "title": "Short title of suggestion",
-      "description": "Specific actionable suggestion explaining what to add or adjust.",
-      "actionableKeyword": "Optional comma separated keywords to quickly append"
+      "description": "Specific actionable suggestion or complete, project-anchored bullet ready for insertion.",
+      "actionableKeyword": "Optional comma separated keywords to categorize"
     }
   ]
 }

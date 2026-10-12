@@ -53,8 +53,14 @@ export const PromptGenerator: React.FC<PromptGeneratorProps> = ({
         throw new Error(data.error || "Failed to generate resume from prompt.");
       }
 
+      try {
+        localStorage.setItem("ats_ai_original_resume", JSON.stringify(resumeData));
+      } catch (e) {
+        console.error("Failed to store baseline resume for AI diff", e);
+      }
+
       onUpdateResumeData(data.updatedResumeData);
-      setSuccessMsg("✨ Resume updated successfully as per your prompt!");
+      setSuccessMsg("✨ Resume updated successfully! AI changes are highlighted.");
       setTimeout(() => setSuccessMsg(null), 5000);
     } catch (err: any) {
       console.error("Generate error:", err);
@@ -82,8 +88,14 @@ export const PromptGenerator: React.FC<PromptGeneratorProps> = ({
         throw new Error(data.error || "Failed to enhance resume with metrics.");
       }
 
+      try {
+        localStorage.setItem("ats_ai_original_resume", JSON.stringify(resumeData));
+      } catch (e) {
+        console.error("Failed to store baseline resume for AI diff", e);
+      }
+
       onUpdateResumeData(data.updatedResumeData);
-      setMetricsSuccessMsg("📊 Resume bullets enhanced with quantifiable metrics!");
+      setMetricsSuccessMsg("📊 Resume bullets enhanced with metrics! AI changes are highlighted.");
       setTimeout(() => setMetricsSuccessMsg(null), 6000);
     } catch (err: any) {
       console.error("Metrics enhance error:", err);
